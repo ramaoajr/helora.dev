@@ -3,7 +3,9 @@ import { Helmet } from 'react-helmet';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import About from '@/components/About';
-import WhatWeDo from '@/components/WhatWeDo';
+import Problems from '@/components/Problems';
+import Services from '@/components/Services';
+import HowWeWork from '@/components/HowWeWork';
 import Technologies from '@/components/Technologies';
 import WhoItsFor from '@/components/WhoItsFor';
 import FinalCTA from '@/components/FinalCTA';
@@ -16,8 +18,8 @@ function App() {
   return (
     <ContactFormProvider>
       <Helmet>
-        <title>Helora Dev - Automation and Internal Apps for Growing Companies</title>
-        <meta name="description" content="Custom automation systems and internal apps for companies that want to grow organised. We help you work smarter with less manual work, fewer errors, and more control." />
+        <title>HeloraDev - Operações eficientes para empresas em crescimento</title>
+        <meta name="description" content="Transformamos operações desorganizadas em processos eficientes com automação, sistemas sob medida e consultoria técnica para PMEs." />
         <meta name="facebook-domain-verification" content="f0f1zudj3ypu1hn8tg500ius85lk3b" />
         
         {/* Google tag (gtag.js) */}
@@ -56,15 +58,16 @@ function App() {
         </noscript>
         {/* End Meta Pixel Code */}
       </Helmet>
-      <div className="min-h-screen bg-[#001D37] text-white">
+      <div className="min-h-screen bg-brand-blue text-white">
         <Header />
         <main>
           <Hero />
+          <Problems />
+          <Services />
+          <HowWeWork />
           <About />
-          <WhatWeDo />
-          {/* <Projects /> -- Removed as per user request */}
-          <Technologies />
           <WhoItsFor />
+          <Technologies />
           <FinalCTA />
         </main>
         <Footer />

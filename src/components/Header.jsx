@@ -17,14 +17,15 @@ const Header = () => {
   };
 
   const navItems = [
-    { label: 'About', id: 'about' },
-    { label: 'What We Do', id: 'what-we-do' },
-    { label: 'Technologies', id: 'technologies' },
-    { label: 'Who It\'s For', id: 'who-its-for' },
+    { label: 'Problemas', id: 'problems' },
+    { label: 'Serviços', id: 'services' },
+    { label: 'Processo', id: 'how-we-work' },
+    { label: 'Para quem', id: 'who-its-for' },
+    { label: 'Tecnologias', id: 'technologies' },
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 bg-[#001D37]/80 backdrop-blur-sm border-b border-[#0f2e4a]">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-brand-blue/85 backdrop-blur-sm border-b border-brand-blueMuted">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <motion.div
@@ -35,8 +36,8 @@ const Header = () => {
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
             <img 
-              src="https://horizons-cdn.hostinger.com/b3b9bc9f-0341-469c-9ea6-612034def2a6/4036a0a5834fc9c61298c4c6b623ae04.png" 
-              alt="Helora Dev" 
+              src="/logo-header.png" 
+              alt="HeloraDev" 
               className="h-8 w-auto"
             />
           </motion.div>
@@ -60,7 +61,7 @@ const Header = () => {
               transition={{ duration: 0.5, delay: navItems.length * 0.1 }}
             >
               <Button onClick={openContactForm} size="sm" className="font-bold">
-                Get in Touch
+                Falar com a HeloraDev
               </Button>
             </motion.div>
           </div>
@@ -70,7 +71,7 @@ const Header = () => {
               variant="ghost"
               size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle mobile menu"
+              aria-label="Abrir menu"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </Button>
@@ -84,7 +85,7 @@ const Header = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-0 w-full bg-[#001D37] border-t border-[#0f2e4a] md:hidden"
+            className="absolute top-full left-0 w-full bg-brand-blue border-t border-brand-blueMuted md:hidden"
           >
             <div className="flex flex-col gap-4 p-4">
               {navItems.map((item) => (
@@ -97,7 +98,7 @@ const Header = () => {
                 </button>
               ))}
               <Button onClick={openContactForm} className="w-full font-bold mt-2">
-                Get in Touch
+                Falar com a HeloraDev
               </Button>
             </div>
           </motion.div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useContactForm } from '@/context/ContactFormContext';
 
@@ -8,70 +9,74 @@ const Hero = () => {
   const { openContactForm } = useContactForm();
 
   return (
-    <section id="hero" className="relative isolate overflow-hidden pt-14 px-4 sm:px-6 lg:px-8">
+    <section id="hero" className="relative isolate overflow-hidden pt-20 px-4 sm:px-6 lg:px-8 bg-brand-blue">
       <Helmet>
-        <title>Helora Dev - Automation and Internal Apps for Growing Companies</title>
-        <meta name="description" content="Custom automation systems and internal apps for companies that want to grow organised. We help you work smarter with less manual work, fewer errors, and more control." />
+        <title>HeloraDev - Operações eficientes para empresas em crescimento</title>
+        <meta name="description" content="Transformamos operações desorganizadas em processos eficientes com automação, sistemas sob medida e consultoria técnica para PMEs." />
       </Helmet>
-      <div
-        className="absolute inset-y-0 right-1/2 -z-10 -mr-96 w-[200%] origin-top-right skew-x-[-30deg] bg-[#0f2e4a] shadow-xl shadow-indigo-600/10 ring-1 ring-indigo-50/10 sm:-mr-80 lg:-mr-96"
-        aria-hidden="true"
-      />
-      <div className="mx-auto max-w-7xl py-32 sm:py-48 lg:py-56">
-        <div className="grid lg:grid-cols-2 items-center gap-10 lg:gap-16">
-          {/* Content Column */}
+
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(135deg,#0B1F33_0%,#102F4F_58%,#0B1F33_100%)]" />
+      <div className="mx-auto max-w-7xl py-12 sm:py-20 lg:py-24">
+        <div className="grid lg:grid-cols-[1.05fr_0.95fr] items-center gap-10 lg:gap-16">
           <div className="text-center lg:text-left">
+            <motion.p
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-5 text-sm font-semibold uppercase tracking-[0.22em] text-primary"
+            >
+              Consultoria operacional e tecnologia sob medida
+            </motion.p>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
               className="text-4xl font-bold tracking-tight text-white sm:text-6xl"
             >
-              Simplify Your Workflow, Amplify Your Growth.
+              Transformamos operações desorganizadas em processos eficientes.
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="mt-6 text-lg leading-8 text-gray-300"
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mt-6 text-lg leading-8 text-gray-300 max-w-2xl mx-auto lg:mx-0"
             >
-              Custom automation systems and internal apps for companies that want to grow organized.
-              We help you work smarter with less manual work, fewer errors, and more control.
+              A HeloraDev organiza fluxos, automatiza tarefas e cria sistemas internos para
+              empresas que precisam de mais controle, menos retrabalho e decisões baseadas em dados.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              className="mt-10 flex items-center justify-center lg:justify-start gap-x-6"
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
             >
-              <Button onClick={openContactForm} size="lg" className="px-8 py-3 text-lg font-semibold shadow-lg">
-                Get in Touch
+              <Button onClick={openContactForm} size="lg" className="w-full sm:w-auto px-8 py-3 text-base font-semibold shadow-lg">
+                Agendar conversa
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <a href="#about" className="text-sm font-semibold leading-6 text-white hover:text-primary transition-colors duration-300">
-                Learn more <span aria-hidden="true">→</span>
+              <a
+                href="#services"
+                className="w-full sm:w-auto inline-flex justify-center rounded-lg border border-white/20 px-8 py-3 text-base font-semibold text-white hover:border-primary hover:text-primary transition-colors duration-300"
+              >
+                Conhecer serviços
               </a>
             </motion.div>
           </div>
 
-          {/* Image Column */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex justify-center lg:justify-end hidden md:block"
+            transition={{ duration: 0.8, delay: 0.35 }}
+            className="hidden md:flex justify-center lg:justify-end"
           >
             <img
               src="/hero.png"
-              alt="Helora Dev Logo - Turning Processes into Systems"
-              className="w-full max-w-md rounded-lg shadow-2xl shadow-black/50"
+              alt="HeloraDev - processos transformados em sistemas"
+              className="w-full max-w-md rounded-lg shadow-2xl shadow-black/40 border border-white/10"
             />
           </motion.div>
         </div>
       </div>
-      <div
-        className="absolute inset-y-0 left-1/2 -z-10 -ml-96 w-[200%] origin-bottom-left skew-x-[30deg] bg-[#0f2e4a] shadow-xl shadow-indigo-600/10 ring-1 ring-indigo-50/10 sm:-ml-80 lg:-ml-96"
-        aria-hidden="true"
-      />
     </section>
   );
 };
