@@ -96,11 +96,11 @@ const ContactFormModal = () => {
         window.fbq('track', 'Lead');
       }
 
-      toast({ title: "Message Sent!", description: "We'll get back to you shortly." });
+      toast({ title: "Mensagem enviada!", description: "Vamos responder em breve." });
       setFormData({ name: '', company: '', email: '', phone: '', subject: '', message: '' });
       setTimeout(closeContactForm, 1000);
     } catch (error) {
-      toast({ variant: "destructive", title: "Error", description: "Something went wrong. Please try again." });
+      toast({ variant: "destructive", title: "Erro", description: "Algo deu errado. Tente novamente." });
     } finally {
       setLoading(false);
     }
@@ -119,9 +119,9 @@ const ContactFormModal = () => {
           >
             <Button variant="ghost" size="icon" onClick={closeContactForm} className="absolute top-4 right-4 text-gray-400 hover:text-white"><X className="w-5 h-5" /></Button>
             <div className="space-y-1.5 text-center sm:text-left">
-              <h2 className="text-2xl font-bold">Get in Touch</h2>
+              <h2 className="text-2xl font-bold">Fale com a HeloraDev</h2>
               <p className="text-sm text-gray-400">
-                {step === 1 ? "Fill out the form and we'll get back to you shortly." : "Tell us a bit more about what you need."}
+                {step === 1 ? "Preencha o formulário e vamos responder em breve." : "Conte um pouco mais sobre o que você precisa."}
               </p>
             </div>
 
@@ -129,15 +129,15 @@ const ContactFormModal = () => {
               {/* Step 1 Fields */}
               <div className={cn("space-y-4", step === 2 && "hidden sm:block")}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label htmlFor="name" className="text-gray-200">Name <span className="text-primary">*</span></Label><Input id="name" name="name" required value={formData.name} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary" /></div>
-                  <div className="space-y-2"><Label htmlFor="company" className="text-gray-200">Company <span className="text-primary">*</span></Label><Input id="company" name="company" required value={formData.company} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary" /></div>
+                  <div className="space-y-2"><Label htmlFor="name" className="text-gray-200">Nome <span className="text-primary">*</span></Label><Input id="name" name="name" required value={formData.name} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary" /></div>
+                  <div className="space-y-2"><Label htmlFor="company" className="text-gray-200">Empresa <span className="text-primary">*</span></Label><Input id="company" name="company" required value={formData.company} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary" /></div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2"><Label htmlFor="email" className="text-gray-200">Email <span className="text-primary">*</span></Label><Input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary" /></div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-gray-200">Phone</Label>
+                    <Label htmlFor="phone" className="text-gray-200">Telefone</Label>
                     <div className="flex gap-2">
-                      <select value={countryCode} onChange={handleCountryChange} className="w-[110px] flex h-12 items-center justify-between rounded-md border border-border bg-[#052441] px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-ring"><option value="" disabled>Code</option>{COUNTRY_CODES.map(c => (<option key={c.code} value={c.dial}>{c.flag} {c.dial}</option>))}</select>
+                      <select value={countryCode} onChange={handleCountryChange} className="w-[110px] flex h-12 items-center justify-between rounded-md border border-border bg-[#052441] px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-ring"><option value="" disabled>Código</option>{COUNTRY_CODES.map(c => (<option key={c.code} value={c.dial}>{c.flag} {c.dial}</option>))}</select>
                       <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary flex-1 h-12" placeholder="1234567890" />
                     </div>
                   </div>
@@ -146,8 +146,8 @@ const ContactFormModal = () => {
 
               {/* Step 2 Fields */}
               <div className={cn("space-y-4", step === 1 && "hidden sm:block")}>
-                <div className="space-y-2"><Label htmlFor="subject" className="text-gray-200">Subject</Label><Input id="subject" name="subject" value={formData.subject} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary" /></div>
-                <div className="space-y-2"><Label htmlFor="message" className="text-gray-200">Message</Label><Textarea id="message" name="message" value={formData.message} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary min-h-[100px]" /></div>
+                <div className="space-y-2"><Label htmlFor="subject" className="text-gray-200">Assunto</Label><Input id="subject" name="subject" value={formData.subject} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary" /></div>
+                <div className="space-y-2"><Label htmlFor="message" className="text-gray-200">Mensagem</Label><Textarea id="message" name="message" value={formData.message} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary min-h-[100px]" /></div>
               </div>
 
               {/* Navigation Buttons */}
@@ -159,7 +159,7 @@ const ContactFormModal = () => {
                   onClick={() => setStep(1)}
                   className={cn("flex-1 sm:hidden", step === 1 && "hidden")}
                 >
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
                 </Button>
 
                 {/* Next Button (Mobile Only) */}
@@ -168,7 +168,7 @@ const ContactFormModal = () => {
                   onClick={handleNext}
                   className={cn("w-full sm:hidden", step === 2 && "hidden")}
                 >
-                  Next <ArrowRight className="ml-2 h-4 w-4" />
+                  Próximo <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
 
                 {/* Submit Button */}
@@ -180,7 +180,7 @@ const ContactFormModal = () => {
                     step === 1 ? "hidden sm:block w-full mt-4" : "flex-[2] sm:w-full sm:mt-4"
                   )}
                 >
-                  {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Submitting...</> : 'Submit'}
+                  {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Enviando...</> : 'Enviar'}
                 </Button>
               </div>
             </form>
