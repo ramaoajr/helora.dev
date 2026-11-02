@@ -15,14 +15,18 @@ import { cn } from '@/lib/utils';
 
 const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
 
+// Brazil first and pre-selected: this is a pt-BR site for Brazilian SMBs. The
+// rest of the list stays — the client does serve clients abroad, they just pick.
 const COUNTRY_CODES = [
-  { code: 'GB', dial: '+44', flag: '🇬🇧' }, { code: 'US', dial: '+1', flag: '🇺🇸' },
-  { code: 'AU', dial: '+61', flag: '🇦🇺' }, { code: 'CA', dial: '+1', flag: '🇨🇦' },
-  { code: 'DE', dial: '+49', flag: '🇩🇪' }, { code: 'FR', dial: '+33', flag: '🇫🇷' },
-  { code: 'IN', dial: '+91', flag: '🇮🇳' }, { code: 'ES', dial: '+34', flag: '🇪🇸' },
-  { code: 'IT', dial: '+39', flag: '🇮🇹' }, { code: 'BR', dial: '+55', flag: '🇧🇷' },
+  { code: 'BR', dial: '+55', flag: '🇧🇷' }, { code: 'GB', dial: '+44', flag: '🇬🇧' },
+  { code: 'US', dial: '+1', flag: '🇺🇸' }, { code: 'AU', dial: '+61', flag: '🇦🇺' },
+  { code: 'CA', dial: '+1', flag: '🇨🇦' }, { code: 'DE', dial: '+49', flag: '🇩🇪' },
+  { code: 'FR', dial: '+33', flag: '🇫🇷' }, { code: 'IN', dial: '+91', flag: '🇮🇳' },
+  { code: 'ES', dial: '+34', flag: '🇪🇸' }, { code: 'IT', dial: '+39', flag: '🇮🇹' },
   { code: 'JP', dial: '+81', flag: '🇯🇵' }, { code: 'CN', dial: '+86', flag: '🇨🇳' },
 ];
+
+const DEFAULT_DIAL_CODE = '+55';
 
 /**
  * Data-use reassurance under the submit button. Copy is pending from the
@@ -38,18 +42,11 @@ const ContactFormModal = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
-  const [countryCode, setCountryCode] = useState('+44');
+  const [countryCode, setCountryCode] = useState(DEFAULT_DIAL_CODE);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({ name: '', company: '', email: '', phone: '', subject: '', message: '' });
   const nameInputRef = useRef(null);
   const openerRef = useRef(null);
-
-  useEffect(() => {
-    fetch('https://ipapi.co/json/').then(res => res.json()).then(data => {
-      const matched = COUNTRY_CODES.find(c => c.code === data.country_code);
-      if (matched) setCountryCode(matched.dial);
-    }).catch(() => console.warn('Could not detect country.'));
-  }, []);
 
   useEffect(() => {
     if (!isOpen) {

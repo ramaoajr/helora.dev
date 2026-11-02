@@ -41,7 +41,7 @@ const Hero = () => {
               transition={{ duration: 0.5, delay: 0.1, ease: EASE_OUT_SOFT }}
               className="text-display-sm md:text-display text-copy-strong"
             >
-              Transformamos operações desorganizadas em processos eficientes.
+              Sua operação não deveria depender de planilhas e memória.
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 16 }}
@@ -59,7 +59,7 @@ const Hero = () => {
               className="mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
             >
               <Button onClick={openContactForm} size="lg" className="w-full sm:w-auto">
-                Agendar conversa
+                Descrever minha operação
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">

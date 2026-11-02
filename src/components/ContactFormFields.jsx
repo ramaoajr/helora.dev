@@ -108,7 +108,7 @@ const ContactFormFields = ({
               <Input
                 {...fieldProps('phone')}
                 type="tel"
-                placeholder="1234567890"
+                placeholder="11 91234-5678"
                 className={cn('flex-1', FIELD_HEIGHT, FIELD_SURFACE)}
               />
             </div>

@@ -42,7 +42,7 @@ const FinalCTA = () => {
             Próximo passo
           </p>
           <h2 id="final-cta-title" className="mt-5 text-h2-sm md:text-h2 text-copy-strong">
-            Seu negócio precisa de mais controle, menos retrabalho e processos mais eficientes.
+            Conte onde a sua operação trava.
           </h2>
           <p className="mt-6 text-lead-sm md:text-lead text-copy">
             Vamos entender a sua operação e identificar onde tecnologia pode gerar resultado

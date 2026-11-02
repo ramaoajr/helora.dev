@@ -1,16 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
-  Atom,
-  BadgeDollarSign,
-  Braces,
-  Code2,
+  AppWindow,
+  BarChart3,
+  Bot,
+  CreditCard,
   Database,
-  GitBranch,
-  LayoutTemplate,
-  Network,
-  NotebookTabs,
-  ServerCog,
+  KeyRound,
+  Smartphone,
   Workflow,
 } from 'lucide-react';
 import SectionIntro from '@/components/SectionIntro';
@@ -19,70 +16,64 @@ import { useInView } from '@/hooks/useInView';
 
 const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
 
+// Eight capabilities, not eleven tool names: the buyer searches for what the
+// thing does, never for the stack. Eight also fills the 4-column grid as an
+// exact 4x2, so the final row is never ragged.
+const CAPABILITIES = [
+  {
+    title: 'Software sob medida',
+    description: 'Sistemas que rodam no navegador, feitos para o seu fluxo.',
+    icon: AppWindow,
+  },
+  {
+    title: 'Aplicativos móveis',
+    description: 'Para quem trabalha fora do escritório, direto no celular.',
+    icon: Smartphone,
+  },
+  {
+    title: 'Agentes de IA',
+    description: 'Respondem, triam e executam tarefas sem alguém no meio.',
+    icon: Bot,
+  },
+  {
+    title: 'Automações e integrações',
+    description: 'Fazem suas ferramentas conversarem entre si.',
+    icon: Workflow,
+  },
+  {
+    title: 'Bancos de dados profissionais',
+    description: 'Um lugar só para o dado, com histórico e dono.',
+    icon: Database,
+  },
+  {
+    title: 'Relatórios e painéis',
+    description: 'O número do dia pronto, sem montar planilha.',
+    icon: BarChart3,
+  },
+  {
+    title: 'Contas e controle de acesso',
+    description: 'Cada pessoa vê o que precisa, e só isso.',
+    icon: KeyRound,
+  },
+  {
+    title: 'Serviços de pagamento',
+    description: 'Cobrança, assinatura e repasse dentro do sistema.',
+    icon: CreditCard,
+  },
+];
+
 const Technologies = () => {
   const [ref, isInView] = useInView({ once: true });
 
-  const technologies = [
-    {
-      name: 'WeWeb',
-      description: 'Interfaces operacionais e aplicações internas com entrega rápida.',
-      icon: LayoutTemplate,
-    },
-    {
-      name: 'React',
-      description: 'Frontends robustos para sistemas sob medida e dashboards.',
-      icon: Atom,
-    },
-    {
-      name: 'Tailwind',
-      description: 'Design system consistente, responsivo e fácil de evoluir.',
-      icon: Code2,
-    },
-    {
-      name: 'Supabase',
-      description: 'Backend, autenticação e APIs para produtos internos escaláveis.',
-      icon: ServerCog,
-    },
-    {
-      name: 'PostgreSQL',
-      description: 'Dados estruturados, relatórios e regras operacionais confiáveis.',
-      icon: Database,
-    },
-    {
-      name: 'n8n',
-      description: 'Automações, integrações e workflows entre ferramentas.',
-      icon: Workflow,
-    },
-    {
-      name: 'Make',
-      description: 'Cenários de automação para processos administrativos e comerciais.',
-      icon: Network,
-    },
-    {
-      name: 'Notion',
-      description: 'Bases de conhecimento, documentação e organização de processos.',
-      icon: NotebookTabs,
-    },
-    {
-      name: 'GitHub',
-      description: 'Versionamento, revisão e entrega técnica com rastreabilidade.',
-      icon: GitBranch,
-    },
-    {
-      name: 'Vercel',
-      description: 'Deploys rápidos e confiáveis para interfaces e aplicações web.',
-      icon: Braces,
-    },
-    {
-      name: 'Stripe',
-      description: 'Pagamentos, assinaturas e fluxos financeiros quando o produto exige.',
-      icon: BadgeDollarSign,
-    },
-  ];
-
   return (
-    // Support tier: the stack matters less to the buyer than the outcome, so
-    // this section runs shorter, narrower and on quieter cards than the rest.
+    // Support tier: this section lists scope, not proof, so it runs shorter,
+    // narrower and on quieter cards than the rest. The icon plates stay
+    // neutral on purpose — amber is reserved for Services, WhoItsFor and the
+    // three solid CTAs, and 8 amber plates here would drown them out.
+    //
+    // The id stays `technologies` even though the section is now about
+    // capabilities: the nav never writes the hash, so renaming it would only
+    // couple this file to Header.jsx and Footer.jsx for zero user-facing gain.
     <section
       id="technologies"
       aria-labelledby="technologies-title"
@@ -99,16 +90,16 @@ const Technologies = () => {
           <SectionIntro
             id="technologies-title"
             align="left"
-            eyebrow="Tecnologias"
-            title="Stack moderno para construir, integrar e sustentar a operação."
-            lead="Escolhemos ferramentas pela aderência ao problema, velocidade de implantação e capacidade de manutenção no longo prazo."
+            eyebrow="O que construímos"
+            title="O que fica funcionando na sua empresa."
+            lead="Oito frentes. Um projeto costuma usar três ou quatro."
           />
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {technologies.map((tech, index) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {CAPABILITIES.map((capability, index) => (
             <SurfaceCard
-              key={tech.name}
+              key={capability.title}
               tone="quiet"
               initial={{ opacity: 0, y: 12 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -118,13 +109,13 @@ const Technologies = () => {
                 ease: EASE_OUT_SOFT,
               }}
             >
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/[0.12] ring-1 ring-inset ring-primary/20">
-                  <tech.icon className="h-5 w-5 text-primary" aria-hidden="true" />
+              <div className="flex items-start gap-3 lg:block">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-white/[0.05] ring-1 ring-inset ring-white/[0.08]">
+                  <capability.icon className="h-5 w-5 text-copy" aria-hidden="true" />
                 </div>
                 <div>
-                  <h3 className="mb-1 text-h4 text-copy-strong">{tech.name}</h3>
-                  <p className="text-small text-copy">{tech.description}</p>
+                  <h3 className="mb-1 text-h4 text-copy-strong lg:mt-4">{capability.title}</h3>
+                  <p className="text-small text-copy">{capability.description}</p>
                 </div>
               </div>
             </SurfaceCard>

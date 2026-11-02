@@ -20,8 +20,7 @@ function App() {
     <ContactFormProvider>
       {/* Title and description live statically in index.html (single source of truth, crawler-visible). */}
       <Helmet>
-        <meta name="facebook-domain-verification" content="f0f1zudj3ypu1hn8tg500ius85lk3b" />
-        
+        {/* facebook-domain-verification lives statically in index.html (crawler-visible, no JS). */}
         {/* Google tag (gtag.js) */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-WGCXWRMLPS"></script>
         <script>
@@ -45,6 +44,10 @@ function App() {
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
+            // autoConfig off: without it the pixel scrapes the contact form and
+            // sends the visitor's hashed name, e-mail and phone to Facebook on
+            // submit, undisclosed. Only the events configured below are sent.
+            fbq('set', 'autoConfig', false, '1393231512478272');
             fbq('init', '1393231512478272');
             fbq('track', 'PageView');
           `}
