@@ -11,10 +11,21 @@ import {
   Route,
   Search,
 } from 'lucide-react';
+import SectionIntro from '@/components/SectionIntro';
 import { useInView } from '@/hooks/useInView';
 
+const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
+
+// Nine items would otherwise stagger for a full second; capping the index
+// keeps the last row inside a 0.24s budget.
+const STAGGER_STEP = 0.04;
+const STAGGER_CAP = 5;
+
+const LEAD =
+  'Quando processos dependem de planilhas, mensagens e memória, a empresa perde tempo, controle e previsibilidade todos os dias.';
+
 const Problems = () => {
-  const [ref, isInView] = useInView({ threshold: 0.2, once: true });
+  const [ref, isInView] = useInView({ once: true });
 
   const problems = [
     {
@@ -65,44 +76,51 @@ const Problems = () => {
   ];
 
   return (
-    <section id="problems" className="py-20 sm:py-28 px-4 bg-brand-blue" ref={ref}>
+    <section
+      id="problems"
+      aria-labelledby="problems-title"
+      className="py-20 sm:py-28 px-4 bg-brand-blue"
+      ref={ref}
+    >
       <div className="container mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="text-center mb-16"
+          transition={{ duration: 0.5, ease: EASE_OUT_SOFT }}
+          className="mb-10 sm:mb-14"
         >
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary mb-4">
-            Problemas que resolvemos
-          </p>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Operações travam antes de parecerem grandes problemas.
-          </h2>
-          <div className="w-20 h-1 bg-primary mx-auto mb-6" />
-          <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-            Quando processos dependem de planilhas, mensagens e memória, a empresa perde tempo,
-            controle e previsibilidade todos os dias.
-          </p>
+          <SectionIntro
+            id="problems-title"
+            align="split"
+            eyebrow="Problemas que resolvemos"
+            title="Operações travam antes de parecerem grandes problemas."
+            lead={LEAD}
+          />
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* A hairline checklist, not cards: the visitor should tick through the
+            nine items in a few seconds and move on. */}
+        <ul className="grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
           {problems.map((problem, index) => (
-            <motion.div
+            <motion.li
               key={problem.title}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: index * 0.05, ease: 'easeOut' }}
-              className="bg-brand-blueSoft p-6 rounded-lg border border-brand-blueMuted"
+              transition={{
+                duration: 0.42,
+                delay: Math.min(index, STAGGER_CAP) * STAGGER_STEP,
+                ease: EASE_OUT_SOFT,
+              }}
+              className="border-t border-white/[0.07] pt-5"
             >
-              <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
-                <problem.icon className="w-5 h-5 text-primary" />
+              <div className="flex items-center gap-3">
+                <problem.icon className="h-5 w-5 text-primary shrink-0" aria-hidden="true" />
+                <h3 className="text-h4 text-copy-strong">{problem.title}</h3>
               </div>
-              <h3 className="text-lg font-bold mb-2">{problem.title}</h3>
-              <p className="text-sm leading-6 text-gray-300">{problem.description}</p>
-            </motion.div>
+              <p className="mt-2 text-small text-copy">{problem.description}</p>
+            </motion.li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

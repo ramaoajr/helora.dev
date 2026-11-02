@@ -13,10 +13,14 @@ import {
   ServerCog,
   Workflow,
 } from 'lucide-react';
+import SectionIntro from '@/components/SectionIntro';
+import SurfaceCard from '@/components/SurfaceCard';
 import { useInView } from '@/hooks/useInView';
 
+const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
+
 const Technologies = () => {
-  const [ref, isInView] = useInView({ threshold: 0.2 });
+  const [ref, isInView] = useInView({ once: true });
 
   const technologies = [
     {
@@ -77,48 +81,53 @@ const Technologies = () => {
   ];
 
   return (
-    <section id="technologies" className="py-20 sm:py-28 px-4 bg-brand-blueSoft" ref={ref}>
-      <div className="container mx-auto max-w-6xl">
+    // Support tier: the stack matters less to the buyer than the outcome, so
+    // this section runs shorter, narrower and on quieter cards than the rest.
+    <section
+      id="technologies"
+      aria-labelledby="technologies-title"
+      className="py-16 sm:py-24 px-4 bg-brand-blueSoft"
+      ref={ref}
+    >
+      <div className="container mx-auto max-w-5xl">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.5, ease: EASE_OUT_SOFT }}
+          className="mb-10 sm:mb-14"
         >
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary mb-4">
-            Tecnologias
-          </p>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Stack moderno para construir, integrar e sustentar a operação.
-          </h2>
-          <div className="w-20 h-1 bg-primary mx-auto mb-6" />
-          <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-            Escolhemos ferramentas pela aderência ao problema, velocidade de implantação e
-            capacidade de manutenção no longo prazo.
-          </p>
+          <SectionIntro
+            id="technologies-title"
+            align="left"
+            eyebrow="Tecnologias"
+            title="Stack moderno para construir, integrar e sustentar a operação."
+            lead="Escolhemos ferramentas pela aderência ao problema, velocidade de implantação e capacidade de manutenção no longo prazo."
+          />
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {technologies.map((tech, index) => (
-            <motion.div
+            <SurfaceCard
               key={tech.name}
-              initial={{ opacity: 0, y: 24 }}
+              tone="quiet"
+              initial={{ opacity: 0, y: 12 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: index * 0.04 }}
-              className="bg-brand-blue p-5 rounded-lg border border-brand-blueMuted hover:border-primary transition-all duration-300 group"
+              transition={{
+                duration: 0.42,
+                delay: Math.min(index, 5) * 0.04,
+                ease: EASE_OUT_SOFT,
+              }}
             >
-              <div className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary/10 group-hover:bg-primary/15 transition-colors duration-300">
-                  <tech.icon className="w-5 h-5 text-primary" />
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/[0.12] ring-1 ring-inset ring-primary/20">
+                  <tech.icon className="h-5 w-5 text-primary" aria-hidden="true" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors duration-300">
-                    {tech.name}
-                  </h3>
-                  <p className="text-sm leading-6 text-gray-300">{tech.description}</p>
+                  <h3 className="mb-1 text-h4 text-copy-strong">{tech.name}</h3>
+                  <p className="text-small text-copy">{tech.description}</p>
                 </div>
               </div>
-            </motion.div>
+            </SurfaceCard>
           ))}
         </div>
       </div>

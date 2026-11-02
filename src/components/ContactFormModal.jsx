@@ -1,13 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+// `ui/dialog.jsx` wraps these same primitives, but its `DialogContent` bundles a
+// non-`forceMount` portal (which kills exit animations), a hardcoded English
+// "Close" label and tailwindcss-animate classes that fight Framer for control of
+// opacity/scale. We compose the underlying primitives it is built on instead —
+// same package, no new dependency, `ui/dialog.jsx` untouched.
+import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { X, Loader2, ArrowRight, ArrowLeft, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import ContactFormFields from '@/components/ContactFormFields';
 import { useContactForm } from '@/context/ContactFormContext';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
+
+const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
 
 const COUNTRY_CODES = [
   { code: 'GB', dial: '+44', flag: '🇬🇧' }, { code: 'US', dial: '+1', flag: '🇺🇸' },
@@ -18,13 +24,25 @@ const COUNTRY_CODES = [
   { code: 'JP', dial: '+81', flag: '🇯🇵' }, { code: 'CN', dial: '+86', flag: '🇨🇳' },
 ];
 
+/**
+ * Data-use reassurance under the submit button. Copy is pending from the
+ * client — while it is null the whole line (icon included) stays out of the
+ * DOM. Set it to a string to switch it on.
+ */
+const DATA_USE_NOTE = null;
+
+const REQUIRED_FIELD_IDS = ['name', 'company', 'email'];
+
 const ContactFormModal = () => {
   const { isOpen, closeContactForm } = useContactForm();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [countryCode, setCountryCode] = useState('+44');
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({ name: '', company: '', email: '', phone: '', subject: '', message: '' });
+  const nameInputRef = useRef(null);
+  const openerRef = useRef(null);
 
   useEffect(() => {
     fetch('https://ipapi.co/json/').then(res => res.json()).then(data => {
@@ -36,16 +54,33 @@ const ContactFormModal = () => {
   useEffect(() => {
     if (!isOpen) {
       setStep(1);
+      setErrors({});
     }
   }, [isOpen]);
 
-  const handleChange = (e) => setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(p => ({ ...p, [name]: value }));
+    setErrors(p => (p[name] ? { ...p, [name]: undefined } : p));
+  };
   const handleCountryChange = (e) => setCountryCode(e.target.value);
+
+  // Mirrors the native validity state into ARIA. `reportValidity()` below stays
+  // the source of the visible browser message; this only exposes it to AT.
+  const syncErrors = () => {
+    setErrors(REQUIRED_FIELD_IDS.reduce((acc, id) => {
+      const input = document.getElementById(id);
+      if (input && !input.checkValidity()) acc[id] = input.validationMessage;
+      return acc;
+    }, {}));
+  };
 
   const handleNext = () => {
     const nameInput = document.getElementById('name');
     const companyInput = document.getElementById('company');
     const emailInput = document.getElementById('email');
+
+    syncErrors();
 
     if (!nameInput?.checkValidity() || !companyInput?.checkValidity() || !emailInput?.checkValidity()) {
       if (!nameInput?.checkValidity()) nameInput?.reportValidity();
@@ -58,11 +93,13 @@ const ContactFormModal = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Manual validation to handle "noValidate" on form
     const nameInput = document.getElementById('name');
     const companyInput = document.getElementById('company');
     const emailInput = document.getElementById('email');
+
+    syncErrors();
 
     if (nameInput && companyInput && emailInput) {
       const isNameInvalid = !nameInput.checkValidity();
@@ -73,7 +110,7 @@ const ContactFormModal = () => {
         if (isNameInvalid) nameInput.reportValidity();
         else if (isCompanyInvalid) companyInput.reportValidity();
         else isEmailInvalid && emailInput.reportValidity();
-        
+
         return;
       }
     }
@@ -81,16 +118,15 @@ const ContactFormModal = () => {
     setLoading(true);
     const payload = { ...formData, phone: formData.phone ? `${countryCode} ${formData.phone}` : '' };
     try {
-      const response = await fetch('https://hook.eu1.make.com/4sakszkabyj9dilwxytsj33tjwo0qo56', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json', 
-          'x-make-apikey': '8V_vaCSDHc6fnLR'
+        headers: {
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error('Network response was not ok');
-      
+
       // Track 'Lead' event on successful submission
       if (window.fbq) {
         window.fbq('track', 'Lead');
@@ -106,88 +142,148 @@ const ContactFormModal = () => {
     }
   };
 
+  // Fires before the focus scope moves focus, so `activeElement` is still the
+  // button that opened the modal — the only chance to record it. Focus then
+  // goes to the first field rather than the panel itself.
+  const handleOpenAutoFocus = (event) => {
+    event.preventDefault();
+    openerRef.current = document.activeElement;
+    nameInputRef.current?.focus();
+  };
+
+  // Radix's modal content restores focus to its own <Dialog.Trigger>, which we
+  // don't use — the CTAs live in Header/Hero/FinalCTA and just flip context
+  // state. Without this, focus falls to <body> on close.
+  const handleCloseAutoFocus = (event) => {
+    event.preventDefault();
+    const opener = openerRef.current;
+    if (opener && document.contains(opener)) opener.focus();
+  };
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="relative grid w-full max-w-2xl gap-4 border border-border bg-background p-6 shadow-2xl rounded-lg max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Button variant="ghost" size="icon" onClick={closeContactForm} className="absolute top-4 right-4 text-gray-400 hover:text-white"><X className="w-5 h-5" /></Button>
-            <div className="space-y-1.5 text-center sm:text-left">
-              <h2 className="text-2xl font-bold">Fale com a HeloraDev</h2>
-              <p className="text-sm text-gray-400">
-                {step === 1 ? "Preencha o formulário e vamos responder em breve." : "Conte um pouco mais sobre o que você precisa."}
-              </p>
-            </div>
+    <DialogPrimitive.Root open={isOpen} onOpenChange={(open) => { if (!open) closeContactForm(); }}>
+      <AnimatePresence>
+        {isOpen && (
+          <DialogPrimitive.Portal forceMount>
+            <DialogPrimitive.Overlay asChild forceMount>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2, ease: EASE_OUT_SOFT }}
+                className="fixed inset-0 z-50 bg-brand-deep/80 backdrop-blur-sm"
+              />
+            </DialogPrimitive.Overlay>
 
-            <form onSubmit={handleSubmit} className="grid gap-4 pt-4" noValidate>
-              {/* Step 1 Fields */}
-              <div className={cn("space-y-4", step === 2 && "hidden sm:block")}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label htmlFor="name" className="text-gray-200">Nome <span className="text-primary">*</span></Label><Input id="name" name="name" required value={formData.name} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary" /></div>
-                  <div className="space-y-2"><Label htmlFor="company" className="text-gray-200">Empresa <span className="text-primary">*</span></Label><Input id="company" name="company" required value={formData.company} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary" /></div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label htmlFor="email" className="text-gray-200">Email <span className="text-primary">*</span></Label><Input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary" /></div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-gray-200">Telefone</Label>
-                    <div className="flex gap-2">
-                      <select value={countryCode} onChange={handleCountryChange} className="w-[110px] flex h-12 items-center justify-between rounded-md border border-border bg-[#052441] px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-ring"><option value="" disabled>Código</option>{COUNTRY_CODES.map(c => (<option key={c.code} value={c.dial}>{c.flag} {c.dial}</option>))}</select>
-                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary flex-1 h-12" placeholder="1234567890" />
-                    </div>
+            {/* Centring shell: `pointer-events-none` lets a click beside the
+                panel fall through to the overlay, which dismisses the dialog. */}
+            <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
+              <DialogPrimitive.Content
+                asChild
+                forceMount
+                aria-modal="true"
+                onOpenAutoFocus={handleOpenAutoFocus}
+                onCloseAutoFocus={handleCloseAutoFocus}
+              >
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.22, ease: EASE_OUT_SOFT }}
+                  className="pointer-events-auto relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl border border-white/[0.10] bg-brand-blue p-6 sm:p-8 shadow-hero"
+                >
+                  <DialogPrimitive.Close asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Fechar"
+                      className="absolute top-4 right-4 text-copy-muted hover:text-copy-strong"
+                    >
+                      <X className="w-5 h-5" aria-hidden="true" />
+                    </Button>
+                  </DialogPrimitive.Close>
+
+                  <div className="space-y-2 pr-12 text-left">
+                    <DialogPrimitive.Title className="text-h3 text-copy-strong">
+                      Fale com a HeloraDev
+                    </DialogPrimitive.Title>
+                    <DialogPrimitive.Description className="text-small text-copy-muted">
+                      {step === 1 ? "Preencha o formulário e vamos responder em breve." : "Conte um pouco mais sobre o que você precisa."}
+                    </DialogPrimitive.Description>
                   </div>
-                </div>
-              </div>
 
-              {/* Step 2 Fields */}
-              <div className={cn("space-y-4", step === 1 && "hidden sm:block")}>
-                <div className="space-y-2"><Label htmlFor="subject" className="text-gray-200">Assunto</Label><Input id="subject" name="subject" value={formData.subject} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary" /></div>
-                <div className="space-y-2"><Label htmlFor="message" className="text-gray-200">Mensagem</Label><Textarea id="message" name="message" value={formData.message} onChange={handleChange} className="bg-[#052441] border-border text-white focus:border-primary min-h-[100px]" /></div>
-              </div>
+                  {/* Progress for the mobile-only 2-step flow. Non-textual on
+                      purpose: the copy for this screen is frozen. */}
+                  <div className="mt-5 flex gap-1.5 sm:hidden" aria-hidden="true">
+                    <span className="h-1 flex-1 rounded-full bg-primary" />
+                    <span
+                      className={cn(
+                        'h-1 flex-1 rounded-full transition-colors duration-200 ease-out-soft',
+                        step === 2 ? 'bg-primary' : 'bg-white/[0.12]'
+                      )}
+                    />
+                  </div>
 
-              {/* Navigation Buttons */}
-              <div className="flex gap-3 mt-4 sm:mt-0 sm:block">
-                {/* Back Button (Mobile Only) */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setStep(1)}
-                  className={cn("flex-1 sm:hidden", step === 1 && "hidden")}
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-                </Button>
+                  <form onSubmit={handleSubmit} className="grid gap-5 pt-6" noValidate>
+                    <ContactFormFields
+                      step={step}
+                      formData={formData}
+                      errors={errors}
+                      countryCode={countryCode}
+                      countryCodes={COUNTRY_CODES}
+                      onChange={handleChange}
+                      onCountryChange={handleCountryChange}
+                      nameInputRef={nameInputRef}
+                    />
 
-                {/* Next Button (Mobile Only) */}
-                <Button
-                  type="button"
-                  onClick={handleNext}
-                  className={cn("w-full sm:hidden", step === 2 && "hidden")}
-                >
-                  Próximo <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                    {/* Navigation Buttons */}
+                    <div className="flex gap-3 sm:block">
+                      {/* Back Button (Mobile Only) */}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setStep(1)}
+                        className={cn("flex-1 sm:hidden", step === 1 && "hidden")}
+                      >
+                        <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" /> Voltar
+                      </Button>
 
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className={cn(
-                    "font-bold",
-                    step === 1 ? "hidden sm:block w-full mt-4" : "flex-[2] sm:w-full sm:mt-4"
-                  )}
-                >
-                  {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Enviando...</> : 'Enviar'}
-                </Button>
-              </div>
-            </form>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+                      {/* Next Button (Mobile Only) */}
+                      <Button
+                        type="button"
+                        onClick={handleNext}
+                        className={cn("w-full sm:hidden", step === 2 && "hidden")}
+                      >
+                        Próximo <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                      </Button>
+
+                      {/* Submit Button */}
+                      <Button
+                        type="submit"
+                        disabled={loading}
+                        className={cn(
+                          "font-bold",
+                          step === 1 ? "hidden sm:inline-flex w-full" : "flex-[2] sm:w-full"
+                        )}
+                      >
+                        {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />Enviando...</> : 'Enviar'}
+                      </Button>
+
+                      {DATA_USE_NOTE && (
+                        <p className="mt-4 flex items-start gap-2 text-micro text-copy-muted">
+                          <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
+                          {DATA_USE_NOTE}
+                        </p>
+                      )}
+                    </div>
+                  </form>
+                </motion.div>
+              </DialogPrimitive.Content>
+            </div>
+          </DialogPrimitive.Portal>
+        )}
+      </AnimatePresence>
+    </DialogPrimitive.Root>
   );
 };
 

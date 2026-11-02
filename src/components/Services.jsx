@@ -1,10 +1,19 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Bot, ClipboardCheck, Network, PanelsTopLeft } from 'lucide-react';
+import SectionIntro from '@/components/SectionIntro';
+import SurfaceCard from '@/components/SurfaceCard';
+import { motion } from 'framer-motion';
 import { useInView } from '@/hooks/useInView';
 
+const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
+const STAGGER_STEP = 0.06;
+const STAGGER_CAP = 5;
+
+const LEAD =
+  'A HeloraDev atua como parceira técnica e estratégica para empresas que precisam organizar o trabalho antes de escalar.';
+
 const Services = () => {
-  const [ref, isInView] = useInView({ threshold: 0.2, once: true });
+  const [ref, isInView] = useInView({ once: true });
 
   const services = [
     {
@@ -34,54 +43,57 @@ const Services = () => {
   ];
 
   return (
-    <section id="services" className="py-20 sm:py-28 px-4 bg-brand-blueSoft" ref={ref}>
+    <section
+      id="services"
+      aria-labelledby="services-title"
+      className="py-24 sm:py-32 px-4 bg-brand-blueSoft"
+      ref={ref}
+    >
       <div className="container mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="text-center mb-16"
+          transition={{ duration: 0.5, ease: EASE_OUT_SOFT }}
+          className="mb-10 sm:mb-14"
         >
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary mb-4">
-            Serviços
-          </p>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Sistemas, automações e clareza para a operação real.
-          </h2>
-          <div className="w-20 h-1 bg-primary mx-auto mb-6" />
-          <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-            A HeloraDev atua como parceira técnica e estratégica para empresas que precisam
-            organizar o trabalho antes de escalar.
-          </p>
+          <SectionIntro
+            id="services-title"
+            align="center"
+            eyebrow="Serviços"
+            title="Sistemas, automações e clareza para a operação real."
+            lead={LEAD}
+          />
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-6">
           {services.map((service, index) => (
-            <motion.div
+            <SurfaceCard
               key={service.title}
-              initial={{ opacity: 0, y: 28 }}
+              as="article"
+              tone="feature"
+              initial={{ opacity: 0, y: 12 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7, delay: index * 0.1, ease: 'easeOut' }}
-              className="bg-brand-blue p-7 rounded-lg border border-brand-blueMuted hover:border-primary transition-colors duration-300"
+              transition={{
+                duration: 0.42,
+                delay: Math.min(index, STAGGER_CAP) * STAGGER_STEP,
+                ease: EASE_OUT_SOFT,
+              }}
             >
-              <div className="flex items-start gap-5">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <service.icon className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-3">{service.title}</h3>
-                  <p className="text-gray-300 leading-relaxed mb-5">{service.description}</p>
-                  <ul className="grid gap-2">
-                    {service.examples.map((example) => (
-                      <li key={example} className="text-sm text-gray-300 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        {example}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              {/* The inset ring is what gives the flat amber square an edge. */}
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/[0.12] ring-1 ring-inset ring-primary/20">
+                <service.icon className="h-6 w-6 text-primary" aria-hidden="true" />
               </div>
-            </motion.div>
+              <h3 className="mb-2 text-h3 text-copy-strong">{service.title}</h3>
+              <p className="mb-5 text-body text-copy">{service.description}</p>
+              <ul className="grid gap-2">
+                {service.examples.map((example) => (
+                  <li key={example} className="flex items-center gap-2.5 text-small text-copy">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" aria-hidden="true" />
+                    {example}
+                  </li>
+                ))}
+              </ul>
+            </SurfaceCard>
           ))}
         </div>
       </div>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
+import { MotionConfig } from 'framer-motion';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import About from '@/components/About';
@@ -17,9 +18,8 @@ import { ContactFormProvider } from '@/context/ContactFormContext';
 function App() {
   return (
     <ContactFormProvider>
+      {/* Title and description live statically in index.html (single source of truth, crawler-visible). */}
       <Helmet>
-        <title>HeloraDev - Operações eficientes para empresas em crescimento</title>
-        <meta name="description" content="Transformamos operações desorganizadas em processos eficientes com automação, sistemas sob medida e consultoria técnica para PMEs." />
         <meta name="facebook-domain-verification" content="f0f1zudj3ypu1hn8tg500ius85lk3b" />
         
         {/* Google tag (gtag.js) */}
@@ -58,22 +58,24 @@ function App() {
         </noscript>
         {/* End Meta Pixel Code */}
       </Helmet>
-      <div className="min-h-screen bg-brand-blue text-white">
-        <Header />
-        <main>
-          <Hero />
-          <Problems />
-          <Services />
-          <HowWeWork />
-          <About />
-          <WhoItsFor />
-          <Technologies />
-          <FinalCTA />
-        </main>
-        <Footer />
-        <ContactFormModal />
-        <Toaster />
-      </div>
+      <MotionConfig reducedMotion="user">
+        <div className="min-h-screen bg-brand-blue text-white">
+          <Header />
+          <main>
+            <Hero />
+            <Problems />
+            <Services />
+            <HowWeWork />
+            <About />
+            <WhoItsFor />
+            <Technologies />
+            <FinalCTA />
+          </main>
+          <Footer />
+          <ContactFormModal />
+          <Toaster />
+        </div>
+      </MotionConfig>
     </ContactFormProvider>
   );
 }
