@@ -1,6 +1,5 @@
-/* global process */
 /**
- * Vercel Serverless Function (Node runtime) — POST /api/contact
+ * Cloudflare Pages Function — POST /api/contact
  *
  * Server-side proxy for the contact form. The Make.com webhook URL and API key
  * live ONLY in environment variables (MAKE_WEBHOOK_URL / MAKE_API_KEY) so they
@@ -9,6 +8,11 @@
  * The browser gets back nothing but `{ ok: true }` or a generic error code —
  * the upstream status/body is never forwarded, so the internal automation
  * stays opaque to the client.
+ *
+ * Ported from the Vercel Serverless Function this started life as. The
+ * validation rules below are unchanged; only the request/response plumbing
+ * differs (Workers runtime: Request/Response objects, `env` instead of
+ * `process.env`, and no pre-parsed body).
  */
 
 const UPSTREAM_TIMEOUT_MS = 8000;
@@ -27,26 +31,24 @@ const FIELDS = [
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+const json = (status, body) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+  });
+
 /**
- * Vercel's Node runtime parses `application/json` bodies for us, but it can
- * also hand back a raw string (or nothing). Normalise to a plain object or
- * return null when the body is not usable JSON.
+ * The Workers runtime hands us a raw Request, so the body is parsed here.
+ * Anything that is not a JSON object returns null.
  */
-function readJsonBody(req) {
-  const body = req.body;
-
-  if (typeof body === 'string') {
-    try {
-      const parsed = JSON.parse(body);
-      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
-    } catch {
-      return null;
-    }
+async function readJsonBody(request) {
+  let parsed;
+  try {
+    parsed = await request.json();
+  } catch {
+    return null;
   }
-
-  if (body && typeof body === 'object' && !Array.isArray(body)) return body;
-
-  return null;
+  return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
 }
 
 /**
@@ -126,27 +128,32 @@ async function forwardToMake(payload, { url, apiKey }) {
   }
 }
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
-    return res.status(405).json({ ok: false, error: 'method_not_allowed' });
+// Exported as onRequest rather than onRequestPost so that a non-POST gets an
+// explicit 405 here, instead of falling through to the SPA rewrite and
+// answering with HTML that the form would read as success.
+export async function onRequest({ request, env }) {
+  if (request.method !== 'POST') {
+    return new Response(JSON.stringify({ ok: false, error: 'method_not_allowed' }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json; charset=utf-8', Allow: 'POST' },
+    });
   }
 
-  const url = process.env.MAKE_WEBHOOK_URL;
-  const apiKey = process.env.MAKE_API_KEY;
+  const url = env.MAKE_WEBHOOK_URL;
+  const apiKey = env.MAKE_API_KEY;
 
   if (!url || !apiKey) {
     console.error('[contact] missing MAKE_WEBHOOK_URL and/or MAKE_API_KEY');
-    return res.status(500).json({
+    return json(500, {
       ok: false,
       error: 'server_misconfigured',
       message: 'Não foi possível enviar sua mensagem agora. Tente novamente mais tarde.',
     });
   }
 
-  const body = readJsonBody(req);
+  const body = await readJsonBody(request);
   if (!body) {
-    return res.status(400).json({
+    return json(400, {
       ok: false,
       error: 'invalid_json',
       message: 'Não foi possível ler os dados enviados.',
@@ -155,7 +162,7 @@ export default async function handler(req, res) {
 
   const { errors, payload } = validateLead(body);
   if (errors) {
-    return res.status(400).json({
+    return json(400, {
       ok: false,
       error: 'validation_error',
       fields: errors,
@@ -166,7 +173,7 @@ export default async function handler(req, res) {
   const outcome = await forwardToMake(payload, { url, apiKey });
 
   if (outcome === 'upstream_timeout') {
-    return res.status(504).json({
+    return json(504, {
       ok: false,
       error: 'upstream_timeout',
       message: 'O envio demorou demais. Tente novamente.',
@@ -174,12 +181,12 @@ export default async function handler(req, res) {
   }
 
   if (outcome === 'upstream_error') {
-    return res.status(502).json({
+    return json(502, {
       ok: false,
       error: 'upstream_error',
       message: 'Não foi possível enviar sua mensagem agora. Tente novamente mais tarde.',
     });
   }
 
-  return res.status(200).json({ ok: true });
+  return json(200, { ok: true });
 }

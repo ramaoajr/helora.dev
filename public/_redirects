@@ -1,0 +1,3 @@
+# SPA: qualquer rota que não corresponda a um arquivo estático serve o index.
+# A Cloudflare serve o arquivo quando ele existe, então /assets/* não é afetado.
+/*    /index.html   200
