@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 // `ui/dialog.jsx` wraps these same primitives, but its `DialogContent` bundles a
 // non-`forceMount` portal (which kills exit animations), a hardcoded English
 // "Close" label and tailwindcss-animate classes that fight Framer for control of
@@ -9,10 +10,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, ArrowRight, ArrowLeft, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ContactFormFields from '@/components/ContactFormFields';
+import ContactFormConsent from '@/components/ContactFormConsent';
 import { useContactForm } from '@/context/ContactFormContext';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import { getSiteLocale } from '@/lib/locale';
+import { CONSENT_VERSION, CONSENT_ERROR } from '@/lib/consent';
 
 const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
 
@@ -36,7 +39,13 @@ const DEFAULT_DIAL_CODE = '+55';
  */
 const DATA_USE_NOTE = null;
 
-const REQUIRED_FIELD_IDS = ['name', 'company', 'email'];
+// Which step's group renders each required field. Below `sm` only the current
+// step's group is in the layout, so this is what tells us which step to show
+// before pointing the browser at an invalid control.
+const REQUIRED_FIELD_STEPS = { name: 1, email: 1, subject: 2, message: 2 };
+
+const REQUIRED_FIELD_IDS = Object.keys(REQUIRED_FIELD_STEPS);
+const STEP_1_REQUIRED_FIELD_IDS = REQUIRED_FIELD_IDS.filter(id => REQUIRED_FIELD_STEPS[id] === 1);
 
 const ContactFormModal = () => {
   const { isOpen, closeContactForm } = useContactForm();
@@ -46,15 +55,31 @@ const ContactFormModal = () => {
   const [countryCode, setCountryCode] = useState(DEFAULT_DIAL_CODE);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({ name: '', company: '', email: '', phone: '', subject: '', message: '' });
+  // Kept out of `formData`: it is spread as strings, the server wants booleans.
+  const [consent, setConsent] = useState(false);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
+  const [consentError, setConsentError] = useState(null);
   const nameInputRef = useRef(null);
+  const consentRef = useRef(null);
   const openerRef = useRef(null);
 
   useEffect(() => {
     if (!isOpen) {
       setStep(1);
       setErrors({});
+      // A reopened modal must never arrive pre-consented or showing a stale error.
+      setConsent(false);
+      setMarketingOptIn(false);
+      setConsentError(null);
     }
   }, [isOpen]);
+
+  // Mirrors how `handleChange` clears a field error: once the box is ticked the
+  // reason for the message is gone, so the message goes with it.
+  const handleConsentChange = (checked) => {
+    setConsent(checked === true);
+    if (checked === true) setConsentError(null);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,19 +98,27 @@ const ContactFormModal = () => {
     }, {}));
   };
 
+  // Points the browser's own message at the first invalid control in `ids`, and
+  // returns whether it found one. Below `sm` the group that is not the current
+  // step is `display:none`, and `reportValidity()` on a hidden control shows
+  // nothing while logging "An invalid form control... is not focusable" — so we
+  // switch to that control's step first. `flushSync` is what makes it visible
+  // *now* rather than on the next render, since the report cannot wait.
+  const reportFirstInvalid = (ids) => {
+    const invalid = ids
+      .map(id => document.getElementById(id))
+      .find(input => input && !input.checkValidity());
+    if (!invalid) return false;
+
+    const targetStep = REQUIRED_FIELD_STEPS[invalid.id];
+    if (targetStep !== step) flushSync(() => setStep(targetStep));
+    invalid.reportValidity();
+    return true;
+  };
+
   const handleNext = () => {
-    const nameInput = document.getElementById('name');
-    const companyInput = document.getElementById('company');
-    const emailInput = document.getElementById('email');
-
     syncErrors();
-
-    if (!nameInput?.checkValidity() || !companyInput?.checkValidity() || !emailInput?.checkValidity()) {
-      if (!nameInput?.checkValidity()) nameInput?.reportValidity();
-      else if (!companyInput?.checkValidity()) companyInput?.reportValidity();
-      else emailInput?.reportValidity();
-      return;
-    }
+    if (reportFirstInvalid(STEP_1_REQUIRED_FIELD_IDS)) return;
     setStep(2);
   };
 
@@ -93,24 +126,19 @@ const ContactFormModal = () => {
     e.preventDefault();
 
     // Manual validation to handle "noValidate" on form
-    const nameInput = document.getElementById('name');
-    const companyInput = document.getElementById('company');
-    const emailInput = document.getElementById('email');
-
     syncErrors();
+    if (reportFirstInvalid(REQUIRED_FIELD_IDS)) return;
 
-    if (nameInput && companyInput && emailInput) {
-      const isNameInvalid = !nameInput.checkValidity();
-      const isCompanyInvalid = !companyInput.checkValidity();
-      const isEmailInvalid = !emailInput.checkValidity();
-
-      if (isNameInvalid || isCompanyInvalid || isEmailInvalid) {
-        if (isNameInvalid) nameInput.reportValidity();
-        else if (isCompanyInvalid) companyInput.reportValidity();
-        else isEmailInvalid && emailInput.reportValidity();
-
-        return;
-      }
+    // After the native pass, not woven into it: `reportFirstInvalid` runs on
+    // `checkValidity()`, which the Radix checkbox button does not have. The
+    // `flushSync` is for the same reason as the one in that helper — Enter in a
+    // text input submits implicitly, including on mobile step 1 where this
+    // block is `display:none`, and an error must never be set on a hidden block.
+    if (!consent) {
+      if (step !== 2) flushSync(() => setStep(2));
+      setConsentError(CONSENT_ERROR);
+      consentRef.current?.focus();
+      return;
     }
 
     setLoading(true);
@@ -121,6 +149,10 @@ const ContactFormModal = () => {
       ...formData,
       phone: formData.phone ? `${countryCode} ${formData.phone}` : '',
       locale: getSiteLocale(),
+      consent,
+      marketing_opt_in: marketingOptIn,
+      // No `consent_at`: the server stamps it, overwriting anything sent here.
+      consent_version: CONSENT_VERSION,
     };
     try {
       const response = await fetch('/api/contact', {
@@ -139,6 +171,9 @@ const ContactFormModal = () => {
 
       toast({ title: "Mensagem enviada!", description: "Vamos responder em breve." });
       setFormData({ name: '', company: '', email: '', phone: '', subject: '', message: '' });
+      setConsent(false);
+      setMarketingOptIn(false);
+      setConsentError(null);
       setTimeout(closeContactForm, 1000);
     } catch (error) {
       toast({ variant: "destructive", title: "Erro", description: "Algo deu errado. Tente novamente." });
@@ -239,6 +274,16 @@ const ContactFormModal = () => {
                       onChange={handleChange}
                       onCountryChange={handleCountryChange}
                       nameInputRef={nameInputRef}
+                    />
+
+                    <ContactFormConsent
+                      step={step}
+                      consent={consent}
+                      marketingOptIn={marketingOptIn}
+                      error={consentError}
+                      onConsentChange={handleConsentChange}
+                      onMarketingChange={(checked) => setMarketingOptIn(checked === true)}
+                      consentRef={consentRef}
                     />
 
                     {/* Navigation Buttons */}

@@ -22,14 +22,27 @@ const UPSTREAM_TIMEOUT_MS = 8000;
 // checkValidity() is only a UX echo and must never be trusted.
 const FIELDS = [
   { name: 'name', required: true, maxLength: 120 },
-  { name: 'company', required: true, maxLength: 160 },
+  { name: 'company', required: false, maxLength: 160 },
   { name: 'email', required: true, maxLength: 254 },
   { name: 'phone', required: false, maxLength: 40 },
-  { name: 'subject', required: false, maxLength: 200 },
-  { name: 'message', required: false, maxLength: 5000 },
+  { name: 'subject', required: true, maxLength: 200 },
+  { name: 'message', required: true, maxLength: 5000 },
 ];
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/**
+ * Every consent wording that has actually been published. A lead may only be
+ * recorded against one of these.
+ *
+ * This version string is intentionally duplicated in the client, in
+ * `src/lib/consent.js`. `functions/` is bundled separately from the Vite tree
+ * and cannot import across the `@` alias, so there is no shared module to put
+ * it in. The two copies must ALWAYS be changed together: publishing a new
+ * wording means adding it here and in the client in the same commit, or the
+ * form starts posting a version the server rejects.
+ */
+const CONSENT_VERSIONS = ['2026-11-07'];
 
 /**
  * Which language version of the site the lead came from, so the automation can
@@ -49,6 +62,43 @@ function normaliseLocale(raw) {
   // Present — the rule as specified: Portuguese is 'pt', anything else is
   // 'en'. Matching on the primary subtag keeps pt, pt-BR and pt-PT together.
   return raw.trim().toLowerCase().split(/[-_]/)[0] === 'pt' ? 'pt' : 'en';
+}
+
+/**
+ * The LGPD consent record.
+ *
+ * Kept out of FIELDS for the same reason as the locale: that loop rejects
+ * anything that is not a string, so a boolean could never pass through it.
+ *
+ * Returns the names of whatever was invalid plus the values to merge into the
+ * payload. The values are only forwarded when `errors` is empty.
+ */
+function readConsent(body) {
+  const errors = [];
+
+  // Only the boolean literal passes. 'true', 'on', 1 and null are signs of a
+  // tampered or malformed submission, not of a visitor who ticked the box.
+  if (body.consent !== true) errors.push('consent');
+
+  // Must match wording the visitor could actually have read. Falling back to
+  // the current version would silently record a consent against text they
+  // never saw, which is worse than having no record at all.
+  if (!CONSENT_VERSIONS.includes(body.consent_version)) errors.push('consent_version');
+
+  return {
+    errors,
+    values: {
+      consent: body.consent === true,
+      // Optional, so never a rejection: anything that is not boolean true is
+      // recorded conservatively as false rather than losing a valid lead over
+      // a marketing flag.
+      marketing_opt_in: body.marketing_opt_in === true,
+      // Stamped here, overwriting whatever the client sent. The visitor
+      // controls their own machine's clock and this is a legal record.
+      consent_at: new Date().toISOString(),
+      consent_version: body.consent_version,
+    },
+  };
 }
 
 const json = (status, body) =>
@@ -110,6 +160,10 @@ function validateLead(body) {
   // Derived, never rejected: an odd value becomes a valid one rather than
   // failing a lead that is otherwise complete.
   payload.locale = normaliseLocale(body.locale);
+
+  const consent = readConsent(body);
+  errors.push(...consent.errors);
+  Object.assign(payload, consent.values);
 
   return errors.length > 0 ? { errors } : { payload };
 }

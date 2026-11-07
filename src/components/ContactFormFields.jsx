@@ -73,11 +73,9 @@ const ContactFormFields = ({
               className={cn(FIELD_HEIGHT, FIELD_SURFACE)}
             />
           </Field>
-          <Field id="company" label="Empresa" required error={errors.company}>
+          <Field id="company" label="Empresa" error={errors.company}>
             <Input
               {...fieldProps('company')}
-              required
-              aria-required="true"
               className={cn(FIELD_HEIGHT, FIELD_SURFACE)}
             />
           </Field>
@@ -118,11 +116,21 @@ const ContactFormFields = ({
 
       {/* Step 2 Fields */}
       <div className={cn('space-y-5', step === 1 && 'hidden sm:block')}>
-        <Field id="subject" label="Assunto">
-          <Input {...fieldProps('subject')} className={cn(FIELD_HEIGHT, FIELD_SURFACE)} />
+        <Field id="subject" label="Assunto" required error={errors.subject}>
+          <Input
+            {...fieldProps('subject')}
+            required
+            aria-required="true"
+            className={cn(FIELD_HEIGHT, FIELD_SURFACE)}
+          />
         </Field>
-        <Field id="message" label="Mensagem">
-          <Textarea {...fieldProps('message')} className={cn('min-h-[120px]', FIELD_SURFACE)} />
+        <Field id="message" label="Mensagem" required error={errors.message}>
+          <Textarea
+            {...fieldProps('message')}
+            required
+            aria-required="true"
+            className={cn('min-h-[120px]', FIELD_SURFACE)}
+          />
         </Field>
       </div>
     </>
