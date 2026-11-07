@@ -31,6 +31,26 @@ const FIELDS = [
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+/**
+ * Which language version of the site the lead came from, so the automation can
+ * pick the matching auto-reply template.
+ *
+ * Kept out of FIELDS on purpose: those entries get a generic "is a string,
+ * under N characters" check, which would happily forward `locale: "<script>"`.
+ * This clamps the value to exactly two outcomes, so the branch downstream is a
+ * clean two-way split that never needs a catch-all arm.
+ */
+function normaliseLocale(raw) {
+  // Absent — a visitor on a cached bundle from before this field existed.
+  // Portuguese is the only published version, so that is where they were.
+  // Revisit this default once /en ships and both are in circulation.
+  if (typeof raw !== 'string' || raw.trim() === '') return 'pt';
+
+  // Present — the rule as specified: Portuguese is 'pt', anything else is
+  // 'en'. Matching on the primary subtag keeps pt, pt-BR and pt-PT together.
+  return raw.trim().toLowerCase().split(/[-_]/)[0] === 'pt' ? 'pt' : 'en';
+}
+
 const json = (status, body) =>
   new Response(JSON.stringify(body), {
     status,
@@ -86,6 +106,10 @@ function validateLead(body) {
   if (!errors.includes('email') && !EMAIL_PATTERN.test(payload.email || '')) {
     errors.push('email');
   }
+
+  // Derived, never rejected: an odd value becomes a valid one rather than
+  // failing a lead that is otherwise complete.
+  payload.locale = normaliseLocale(body.locale);
 
   return errors.length > 0 ? { errors } : { payload };
 }

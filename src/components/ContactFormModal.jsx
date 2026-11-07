@@ -12,6 +12,7 @@ import ContactFormFields from '@/components/ContactFormFields';
 import { useContactForm } from '@/context/ContactFormContext';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
+import { getSiteLocale } from '@/lib/locale';
 
 const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
 
@@ -113,7 +114,14 @@ const ContactFormModal = () => {
     }
 
     setLoading(true);
-    const payload = { ...formData, phone: formData.phone ? `${countryCode} ${formData.phone}` : '' };
+    // `locale` tells the automation which language to answer in. It describes
+    // the site version this form was submitted from, not the visitor's browser
+    // settings — see src/lib/locale.js for why that distinction matters.
+    const payload = {
+      ...formData,
+      phone: formData.phone ? `${countryCode} ${formData.phone}` : '',
+      locale: getSiteLocale(),
+    };
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
