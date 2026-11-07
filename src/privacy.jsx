@@ -5,8 +5,9 @@ import en from '@/content/en';
 import { CopyProvider } from '@/content/CopyContext';
 import '@/index.css';
 
-// English twin of `privacidade.jsx`, bare for the same reason: a page that
-// explains data processing runs no analytics on the person reading it.
+// English twin of `privacidade.jsx`, bare for the same reason, and carrying no
+// analytics beacon either: a page that explains data processing measures
+// nobody who reads it.
 ReactDOM.createRoot(document.getElementById('root')).render(
   <CopyProvider copy={en}>
     <PrivacyPage />

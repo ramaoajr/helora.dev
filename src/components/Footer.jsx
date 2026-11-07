@@ -23,18 +23,6 @@ const Footer = () => {
     scrollToSection(id);
   };
 
-  const handleSocialClick = (platform) => {
-    if (window.fbq) {
-      window.fbq('track', 'ViewContent', { content_name: `${platform} Profile` });
-    }
-  };
-
-  const handleEmailClick = () => {
-    if (window.fbq) {
-      window.fbq('track', 'Contact');
-    }
-  };
-
   return (
     <footer id="contact" className="bg-brand-deep pt-10 pb-8 px-4 sm:px-6 lg:px-8">
       {/* Three bands, no separating rule: the density change between the
@@ -55,7 +43,6 @@ const Footer = () => {
               signal here, so it carries body weight, not fine print. */}
           <a
             href="mailto:dev4me@helora.dev"
-            onClick={handleEmailClick}
             className="inline-flex items-center gap-2 rounded py-3 text-body font-semibold text-copy-strong transition-colors duration-200 ease-out-soft hover:text-primary sm:py-2"
           >
             <Mail className="h-[18px] w-[18px] shrink-0 text-primary" aria-hidden="true" />
@@ -85,7 +72,6 @@ const Footer = () => {
             href="https://www.linkedin.com/company/heloradev/"
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => handleSocialClick('LinkedIn')}
             className={LINK_CLASS}
           >
             <Linkedin className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -95,7 +81,6 @@ const Footer = () => {
             href="https://www.instagram.com/heloradev/"
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => handleSocialClick('Instagram')}
             className={LINK_CLASS}
           >
             <Instagram className="h-4 w-4 shrink-0" aria-hidden="true" />

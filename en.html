@@ -78,5 +78,10 @@
 	<body>
 		<div id="root"></div>
 		<script type="module" src="/src/en.jsx"></script>
+		<!-- Cloudflare Web Analytics. Counts visits without writing anything to
+		     the browser: no cookie, no identifier, nothing to consent to. It is
+		     deliberately absent from privacidade.html and privacy.html — a page
+		     that explains data processing measures nobody. -->
+		<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "97ad14bb0c2c4305aee692859ccb3b6e"}'></script>
 	</body>
 </html>

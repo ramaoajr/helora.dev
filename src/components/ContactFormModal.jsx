@@ -161,11 +161,6 @@ const ContactFormModal = () => {
       });
       if (!response.ok) throw new Error('Network response was not ok');
 
-      // Track 'Lead' event on successful submission
-      if (window.fbq) {
-        window.fbq('track', 'Lead');
-      }
-
       toast({ title: form.success.title, description: form.success.description });
       setFormData({ name: '', company: '', email: '', phone: '', subject: '', message: '' });
       setConsent(false);

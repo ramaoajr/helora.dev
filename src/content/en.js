@@ -402,8 +402,9 @@ const en = {
       {
         title: 'Measuring visits',
         blocks: [
-          { p: 'This page loads no measurement script: nobody is counted for reading the text here. The rest of the site uses Google Analytics and the Meta pixel to count visits and clicks.' },
-          { pending: 'cookie text, covering what each one stores and how to refuse the measurement' },
+          { p: 'This page loads no measurement at all: nobody is counted for reading the text here.' },
+          { p: 'The rest of the site counts visits without storing anything in your browser — no cookie, no identifier, nothing that would recognise you on a later visit. What is kept is the total: how many people opened each page, from which country, and which link brought them.' },
+          { p: 'Because nothing is stored in your browser, there is nothing to refuse and no banner to accept.' },
         ],
       },
       {

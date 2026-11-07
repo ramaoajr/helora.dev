@@ -412,8 +412,9 @@ const pt = {
       {
         title: 'Medição de visitas',
         blocks: [
-          { p: 'Esta página não carrega nenhum script de medição: ninguém é contado por ler o texto aqui. As demais páginas do site usam o Google Analytics e o pixel da Meta para contar visitas e cliques.' },
-          { pending: 'texto sobre cookies, incluindo o que cada um guarda e como recusar a medição' },
+          { p: 'Esta página não carrega nenhuma medição: ninguém é contado por ler o texto aqui.' },
+          { p: 'As demais páginas contam visitas sem guardar nada no seu navegador — nenhum cookie, nenhum identificador, nada que permita reconhecer você numa próxima vez. Fica só o número somado: quantas pessoas abriram cada página, de que país e por qual link chegaram.' },
+          { p: 'Como não existe nada guardado no seu navegador, não há o que recusar nem caixa de aviso a aceitar.' },
         ],
       },
       {
