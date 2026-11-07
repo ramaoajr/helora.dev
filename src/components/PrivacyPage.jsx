@@ -110,8 +110,7 @@ const PrivacyPage = () => (
           <Section title="Quem responde por isso">
             <p>
               A HeloraDev é gerida por MJ de Campos, residente em Liverpool, na Inglaterra, que
-              decide o que acontece com as informações recebidas pelo site. A atuação é como pessoa
-              física: não existe empresa registrada.
+              decide o que acontece com as informações recebidas pelo site.
             </p>
             <p>
               É também quem atende os pedidos sobre dados pessoais — não há outra pessoa encarregada
