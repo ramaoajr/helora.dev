@@ -109,18 +109,13 @@ const PrivacyPage = () => (
 
           <Section title="Quem responde por isso">
             <p>
-              A HeloraDev é conduzida por Ramão Acosta Jr., que decide o que acontece com as
-              informações recebidas pelo site. Para qualquer assunto desta página, escreva para{' '}
-              <MailLink />.
+              A HeloraDev é gerida por MJ de Campos, residente em Liverpool, na Inglaterra, que
+              decide o que acontece com as informações recebidas pelo site. A atuação é como pessoa
+              física: não existe empresa registrada.
             </p>
             <p>
-              <Pending>razão social e CNPJ, ou a confirmação de que a atuação é como pessoa física</Pending>
-            </p>
-            <p>
-              <Pending>endereço postal para correspondência</Pending>
-            </p>
-            <p>
-              <Pending>nome e contato do encarregado pela proteção de dados, se houver um</Pending>
+              É também quem atende os pedidos sobre dados pessoais — não há outra pessoa encarregada
+              disso. Escreva para <MailLink />, que é o canal para qualquer assunto desta página.
             </p>
           </Section>
 
