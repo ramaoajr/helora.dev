@@ -5,9 +5,9 @@ import en from '@/content/en';
 import { CopyProvider } from '@/content/CopyContext';
 import '@/index.css';
 
-// English twin of `privacidade.jsx`, bare for the same reason, and carrying no
-// analytics beacon either: a page that explains data processing measures
-// nobody who reads it.
+// English twin of `privacidade.jsx`, bare for the same reason. Like it, this
+// page is counted by the zone-wide cookieless beacon and says so in its own
+// text instead of claiming an exemption.
 ReactDOM.createRoot(document.getElementById('root')).render(
   <CopyProvider copy={en}>
     <PrivacyPage />

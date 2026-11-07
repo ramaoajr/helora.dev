@@ -412,8 +412,8 @@ const pt = {
       {
         title: 'Medição de visitas',
         blocks: [
-          { p: 'Esta página não carrega nenhuma medição: ninguém é contado por ler o texto aqui.' },
-          { p: 'As demais páginas contam visitas sem guardar nada no seu navegador — nenhum cookie, nenhum identificador, nada que permita reconhecer você numa próxima vez. Fica só o número somado: quantas pessoas abriram cada página, de que país e por qual link chegaram.' },
+          { p: 'O site conta visitas sem guardar nada no seu navegador — nenhum cookie, nenhum identificador, nada que permita reconhecer você numa próxima vez. Esta página é contada como qualquer outra.' },
+          { p: 'Fica só o número somado: quantas pessoas abriram cada página, de que país e por qual link chegaram. Não dá para ligar nenhum desses números a uma pessoa.' },
           { p: 'Como não existe nada guardado no seu navegador, não há o que recusar nem caixa de aviso a aceitar.' },
         ],
       },

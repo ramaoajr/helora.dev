@@ -78,10 +78,18 @@
 	<body>
 		<div id="root"></div>
 		<script type="module" src="/src/en.jsx"></script>
-		<!-- Cloudflare Web Analytics. Counts visits without writing anything to
-		     the browser: no cookie, no identifier, nothing to consent to. It is
-		     deliberately absent from privacidade.html and privacy.html — a page
-		     that explains data processing measures nobody. -->
-		<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "97ad14bb0c2c4305aee692859ccb3b6e"}'></script>
+		<!-- NO ANALYTICS TAG HERE, AND THE SITE IS STILL MEASURED.
+		     Cloudflare Web Analytics injects its beacon into every HTML
+		     navigation on this zone, from the dashboard rather than from this
+		     repository (account rum site c0b6060433524c819e26a69c1f07db08).
+		     It stores nothing in the browser — no cookie, no identifier — so
+		     there is nothing to consent to.
+
+		     A tag was hand-placed here first and had to come out: the edge
+		     injects regardless of the site's auto_install flag, so the two
+		     together loaded the beacon twice and counted every visit twice.
+		     Do not add one back without first confirming the edge has stopped.
+		     This note exists so nobody reading the source concludes the site
+		     has no measurement. -->
 	</body>
 </html>

@@ -402,8 +402,8 @@ const en = {
       {
         title: 'Measuring visits',
         blocks: [
-          { p: 'This page loads no measurement at all: nobody is counted for reading the text here.' },
-          { p: 'The rest of the site counts visits without storing anything in your browser — no cookie, no identifier, nothing that would recognise you on a later visit. What is kept is the total: how many people opened each page, from which country, and which link brought them.' },
+          { p: 'The site counts visits without storing anything in your browser — no cookie, no identifier, nothing that would recognise you on a later visit. This page is counted like any other.' },
+          { p: 'What is kept is the total: how many people opened each page, from which country, and which link brought them. None of those numbers can be traced back to a person.' },
           { p: 'Because nothing is stored in your browser, there is nothing to refuse and no banner to accept.' },
         ],
       },
