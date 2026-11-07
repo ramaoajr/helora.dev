@@ -10,13 +10,14 @@ export default defineConfig({
       // has to be listed here explicitly — drop it and the whole main site
       // stops being built.
       //
-      // `privacidade` stays a flat file on purpose: it emits
-      // `dist/privacidade.html`, which Cloudflare Pages serves at the clean
-      // `/privacidade` with a 200. A `privacidade/index.html` layout would
-      // instead redirect `/privacidade` to `/privacidade/`.
+      // Every entry is a FLAT file for the same reason: `en.html` emits
+      // `dist/en.html`, which Cloudflare Pages serves at the clean `/en` with
+      // a 200. An `en/index.html` layout would redirect `/en` to `/en/`.
       input: {
         index: path.resolve(__dirname, 'index.html'),
         privacidade: path.resolve(__dirname, 'privacidade.html'),
+        en: path.resolve(__dirname, 'en.html'),
+        privacy: path.resolve(__dirname, 'privacy.html'),
       },
     },
   },

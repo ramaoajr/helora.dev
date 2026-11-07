@@ -9,6 +9,12 @@
 		<meta name="theme-color" content="#0B1F33" />
 		<link rel="canonical" href="https://helora.dev/" />
 
+		<!-- x-default points here: Portuguese is the indexed version and the
+		     fallback for a visitor whose language matches neither. -->
+		<link rel="alternate" hreflang="pt-BR" href="https://helora.dev/" />
+		<link rel="alternate" hreflang="en" href="https://helora.dev/en" />
+		<link rel="alternate" hreflang="x-default" href="https://helora.dev/" />
+
 		<meta name="facebook-domain-verification" content="f0f1zudj3ypu1hn8tg500ius85lk3b" />
 
 		<link rel="preload" href="/fonts/ibm-plex-sans-latin-400.woff2" as="font" type="font/woff2" crossorigin />
@@ -22,6 +28,7 @@
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content="HeloraDev" />
 		<meta property="og:locale" content="pt_BR" />
+		<meta property="og:locale:alternate" content="en_GB" />
 		<meta property="og:url" content="https://helora.dev/" />
 		<meta property="og:title" content="Automação de processos e sistemas sob medida | HeloraDev" />
 		<meta property="og:description" content="A HeloraDev organiza fluxos, automatiza tarefas e cria sistemas internos para PMEs que ainda operam no limite da planilha. Começamos pelo diagnóstico." />
@@ -48,7 +55,7 @@
 						"image": "https://helora.dev/og-image.png",
 						"description": "A HeloraDev organiza fluxos, automatiza tarefas e cria sistemas internos para PMEs que ainda operam no limite da planilha. Começamos pelo diagnóstico.",
 						"email": "dev4me@helora.dev",
-						"areaServed": "BR",
+						"areaServed": ["BR", "GB"],
 						"sameAs": [
 							"https://www.linkedin.com/company/heloradev/",
 							"https://www.instagram.com/heloradev/"

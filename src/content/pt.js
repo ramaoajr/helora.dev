@@ -25,10 +25,15 @@ const pt = {
   // Where this version's data-processing page lives.
   privacyPath: '/privacidade',
 
+  // Where the logo and the back link on the privacy page point.
+  homePath: '/',
+
   // The other version, for the language switch. `lang` goes on the anchor so a
   // screen reader announces "English" in English rather than reading it with
   // Portuguese phonemes.
-  alternate: { label: 'English', href: '/en', lang: 'en' },
+  // `privacyPath` is the OTHER language's data page, so the switch on that
+  // page lands on the same text rather than bouncing to its home page.
+  alternate: { label: 'English', href: '/en', lang: 'en', privacyPath: '/privacy' },
 
   // Strings nobody sees: labels for assistive technology, and the names of
   // landmarks a screen-reader user navigates by.
@@ -348,6 +353,108 @@ const pt = {
       'Quero receber novidades da HeloraDev por e-mail. Posso cancelar quando quiser.',
     error: 'Para enviar, você precisa concordar com o tratamento dos seus dados.',
   },
+  // The data-processing page, as blocks rather than JSX. Each block is a
+  // single-key object: `p` a paragraph, `ul` a list, `pending` an answer the
+  // site owner still owes. A `{mail}` token inside a paragraph is replaced with
+  // the contact link, so the copy stays plain text and the anchor stays real
+  // markup.
+  privacy: {
+    title: 'Como tratamos seus dados',
+    versionLabel: (date) => `Versão em vigor desde ${date}.`,
+    backToHome: 'Voltar para o início',
+    sections: [
+      {
+        title: 'Em resumo',
+        blocks: [
+          { p: 'Você preenche o formulário do site porque quer falar com a gente. O que chega aqui serve para três coisas:' },
+          { ul: [
+            'responder à sua mensagem;',
+            'guardar o registro do seu interesse, para acompanhar a conversa;',
+            'enviar novidades por e-mail — isso só para quem marcou a caixa opcional antes de enviar.',
+          ] },
+          { p: 'Fora disso, nada. Seus dados não são vendidos nem passados para que outra empresa use por conta própria.' },
+        ],
+      },
+      {
+        title: 'Quem responde por isso',
+        blocks: [
+          { p: 'A HeloraDev é gerida por MJ de Campos, residente em Liverpool, na Inglaterra, que decide o que acontece com as informações recebidas pelo site.' },
+          { p: 'É também quem atende os pedidos sobre dados pessoais — não há outra pessoa encarregada disso. Escreva para {mail}, que é o canal para qualquer assunto desta página.' },
+        ],
+      },
+      {
+        title: 'O que o formulário recolhe',
+        blocks: [
+          { p: 'Os campos que você preenche:' },
+          { ul: [
+            'nome;',
+            'empresa, se quiser informar;',
+            'e-mail;',
+            'telefone, se quiser informar;',
+            'assunto e mensagem.',
+          ] },
+          { p: 'E o registro do próprio envio, gerado junto:' },
+          { ul: [
+            'data e hora em que você concordou;',
+            'a versão do texto de consentimento que estava no ar;',
+            'se a caixa opcional de e-mails foi marcada;',
+            'o idioma da página de onde você escreveu.',
+          ] },
+          { p: 'Nenhum outro campo é aceito. O servidor descarta o que não estiver nessa lista, mesmo que chegue junto com o envio.' },
+        ],
+      },
+      {
+        title: 'Para onde vão',
+        blocks: [
+          { p: 'O que você escreve no formulário vai direto para o nosso CRM, onde o contato fica registrado e a conversa é acompanhada.' },
+        ],
+      },
+      {
+        title: 'Medição de visitas',
+        blocks: [
+          { p: 'Esta página não carrega nenhum script de medição: ninguém é contado por ler o texto aqui. As demais páginas do site usam o Google Analytics e o pixel da Meta para contar visitas e cliques.' },
+          { pending: 'texto sobre cookies, incluindo o que cada um guarda e como recusar a medição' },
+        ],
+      },
+      {
+        title: 'Por quanto tempo ficam guardados',
+        blocks: [
+          { p: 'Os registros ficam 365 dias, contados do último contato ou da última movimentação. Passado esse prazo sem nada acontecer, são apagados.' },
+          { p: 'Quem se torna cliente sai dessa contagem, porque a relação comercial tem obrigações de guarda próprias.' },
+        ],
+      },
+      {
+        title: 'Proteção',
+        blocks: [
+          { p: 'As chaves da automação ficam só no servidor e nunca chegam ao navegador de quem visita o site. O retorno do formulário não revela nada sobre o que acontece depois.' },
+          { p: 'Os registros ficam atrás de credenciais criptografadas, e não existe acesso de fora.' },
+        ],
+      },
+      {
+        title: 'Seus direitos',
+        blocks: [
+          { p: 'Basta um e-mail para:' },
+          { ul: [
+            'saber se existe algum registro seu;',
+            'ver o que está guardado;',
+            'corrigir o que estiver errado;',
+            'pedir que tudo seja apagado;',
+            'retirar a concordância que você deu ao enviar o formulário;',
+            'sair da lista de e-mails, se tiver marcado a caixa opcional.',
+          ] },
+          { p: 'Mande o pedido para {mail}.' },
+          { p: 'Todo pedido é respondido em até 14 dias úteis.' },
+        ],
+      },
+      {
+        title: 'Versões deste texto',
+        blocks: [
+          { p: 'Mudar uma palavra do consentimento cria uma versão nova, e é ela que fica anotada em cada envio a partir dali. A data no alto da página mostra qual está valendo agora.' },
+        ],
+      },
+    ],
+  },
+
 };
 
 export default pt;

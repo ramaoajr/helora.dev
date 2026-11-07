@@ -1,13 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<!--
+  Each URL carries the full set of xhtml:link alternates, including a self
+  reference. That is what the spec requires: a language group is only valid if
+  every page in it points at every page in it, itself included. The same set is
+  repeated in each page's <head>, so a crawler that never reads this file still
+  sees the pairing.
+-->
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://helora.dev/</loc>
-    <lastmod>2026-11-02</lastmod>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://helora.dev/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://helora.dev/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://helora.dev/" />
+    <lastmod>2026-11-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://helora.dev/en</loc>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://helora.dev/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://helora.dev/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://helora.dev/" />
+    <lastmod>2026-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://helora.dev/privacidade</loc>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://helora.dev/privacidade" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://helora.dev/privacy" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://helora.dev/privacidade" />
+    <lastmod>2026-11-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://helora.dev/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://helora.dev/privacidade" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://helora.dev/privacy" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://helora.dev/privacidade" />
     <lastmod>2026-11-07</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
