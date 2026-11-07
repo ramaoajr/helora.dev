@@ -1,5 +1,6 @@
 import React from 'react';
 import { Mail, Linkedin, Instagram } from 'lucide-react';
+import { useCopy } from '@/content/CopyContext';
 
 // Shared by the quick links and the two social links. py-3 gives a 46px touch
 // target at phone widths; from sm up the pointer is precise enough that the
@@ -7,15 +8,9 @@ import { Mail, Linkedin, Instagram } from 'lucide-react';
 const LINK_CLASS =
   'inline-flex items-center gap-2 rounded py-3 sm:py-2 text-small text-copy hover:text-primary transition-colors duration-200 ease-out-soft';
 
-// The visible label is "O que construímos"; the scroll target id stays
-// `technologies` — it is the section's identity, not its heading.
-const QUICK_LINKS = [
-  { label: 'Serviços', id: 'services' },
-  { label: 'Como trabalhamos', id: 'how-we-work' },
-  { label: 'O que construímos', id: 'technologies' },
-];
-
 const Footer = () => {
+  const { footer, a11y } = useCopy();
+
   const scrollToSection = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -69,10 +64,12 @@ const Footer = () => {
         </div>
 
         <nav
-          aria-label="Links do rodapé"
+          aria-label={a11y.footerNav}
           className="flex flex-wrap justify-center gap-x-6 gap-y-1 sm:justify-start"
         >
-          {QUICK_LINKS.map((item) => (
+          {/* The visible labels are copy; the scroll target ids are the
+              sections' identity and live in the copy modules beside them. */}
+          {footer.quickLinks.map((item) => (
             <a
               key={item.id}
               href={`#${item.id}`}
@@ -82,6 +79,8 @@ const Footer = () => {
               {item.label}
             </a>
           ))}
+          {/* LinkedIn and Instagram are proper nouns: the same word in every
+              language, so they are not in the copy modules. */}
           <a
             href="https://www.linkedin.com/company/heloradev/"
             target="_blank"
@@ -105,7 +104,7 @@ const Footer = () => {
         </nav>
 
         <p className="text-center text-micro text-copy-muted sm:text-left">
-          © {new Date().getFullYear()} HeloraDev. Todos os direitos reservados.
+          {footer.copyright(new Date().getFullYear())}
         </p>
       </div>
     </footer>

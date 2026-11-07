@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useContactForm } from '@/context/ContactFormContext';
+import { useCopy } from '@/content/CopyContext';
 
 const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
 
@@ -16,6 +17,7 @@ const TRUST_ITEMS = [];
 
 const Hero = () => {
   const { openContactForm } = useContactForm();
+  const { hero } = useCopy();
 
   return (
     <section id="hero" className="relative isolate overflow-hidden pt-20 px-4 sm:px-6 lg:px-8 bg-brand-blue">
@@ -33,7 +35,7 @@ const Hero = () => {
                   mobile layout it detaches from the wrapped label, so it only
                   appears once the eyebrow is left-aligned. */}
               <span className="hidden h-px w-6 shrink-0 bg-primary lg:block" aria-hidden="true" />
-              Consultoria operacional e tecnologia sob medida
+              {hero.eyebrow}
             </motion.p>
             <motion.h1
               initial={{ opacity: 0, y: 16 }}
@@ -41,7 +43,7 @@ const Hero = () => {
               transition={{ duration: 0.5, delay: 0.1, ease: EASE_OUT_SOFT }}
               className="text-display-sm md:text-display text-copy-strong"
             >
-              Sua operação não deveria depender de planilhas e memória.
+              {hero.title}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 16 }}
@@ -49,8 +51,7 @@ const Hero = () => {
               transition={{ duration: 0.5, delay: 0.2, ease: EASE_OUT_SOFT }}
               className="mt-6 text-lead-sm md:text-lead text-copy max-w-2xl mx-auto lg:mx-0"
             >
-              A HeloraDev organiza fluxos, automatiza tarefas e cria sistemas internos para
-              empresas que precisam de mais controle, menos retrabalho e decisões baseadas em dados.
+              {hero.lead}
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -59,11 +60,11 @@ const Hero = () => {
               className="mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
             >
               <Button onClick={openContactForm} size="lg" className="w-full sm:w-auto">
-                Descrever minha operação
+                {hero.primaryCta}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
-                <a href="#services">Conhecer serviços</a>
+                <a href="#services">{hero.secondaryCta}</a>
               </Button>
             </motion.div>
 
@@ -97,7 +98,7 @@ const Hero = () => {
               />
               <img
                 src="/hero-diagram.svg"
-                alt="Planilhas, mensagens e documentos dispersos sendo transformados em um sistema conectado"
+                alt={hero.imageAlt}
                 width="800"
                 height="800"
                 decoding="async"

@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { useCopy } from '@/content/CopyContext';
 
 // One surface for every control so the native <select> stops reading as a
 // different design system from the shadcn inputs.
@@ -50,6 +51,9 @@ const ContactFormFields = ({
   onCountryChange,
   nameInputRef,
 }) => {
+  const { form } = useCopy();
+  const { labels } = form;
+
   const fieldProps = (id) => ({
     id,
     name: id,
@@ -64,7 +68,7 @@ const ContactFormFields = ({
       {/* Step 1 Fields */}
       <div className={cn('space-y-5', step === 2 && 'hidden sm:block')}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <Field id="name" label="Nome" required error={errors.name}>
+          <Field id="name" label={labels.name} required error={errors.name}>
             <Input
               {...fieldProps('name')}
               ref={nameInputRef}
@@ -73,7 +77,7 @@ const ContactFormFields = ({
               className={cn(FIELD_HEIGHT, FIELD_SURFACE)}
             />
           </Field>
-          <Field id="company" label="Empresa" error={errors.company}>
+          <Field id="company" label={labels.company} error={errors.company}>
             <Input
               {...fieldProps('company')}
               className={cn(FIELD_HEIGHT, FIELD_SURFACE)}
@@ -81,7 +85,7 @@ const ContactFormFields = ({
           </Field>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <Field id="email" label="Email" required error={errors.email}>
+          <Field id="email" label={labels.email} required error={errors.email}>
             <Input
               {...fieldProps('email')}
               type="email"
@@ -90,23 +94,23 @@ const ContactFormFields = ({
               className={cn(FIELD_HEIGHT, FIELD_SURFACE)}
             />
           </Field>
-          <Field id="phone" label="Telefone">
+          <Field id="phone" label={labels.phone}>
             <div className="flex gap-2">
-              {/* Named by the "Telefone" label rather than a new string — the
-                  copy for this screen is frozen. */}
+              {/* Named by the phone label rather than a string of its own —
+                  one visible label covers both controls in the pair. */}
               <select
                 value={countryCode}
                 onChange={onCountryChange}
                 aria-labelledby="phone-label"
                 className={cn(SELECT_BASE, FIELD_HEIGHT, FIELD_SURFACE)}
               >
-                <option value="" disabled>Código</option>
+                <option value="" disabled>{form.dialCodePlaceholder}</option>
                 {countryCodes.map(c => (<option key={c.code} value={c.dial}>{c.flag} {c.dial}</option>))}
               </select>
               <Input
                 {...fieldProps('phone')}
                 type="tel"
-                placeholder="11 91234-5678"
+                placeholder={form.phonePlaceholder}
                 className={cn('flex-1', FIELD_HEIGHT, FIELD_SURFACE)}
               />
             </div>
@@ -116,7 +120,7 @@ const ContactFormFields = ({
 
       {/* Step 2 Fields */}
       <div className={cn('space-y-5', step === 1 && 'hidden sm:block')}>
-        <Field id="subject" label="Assunto" required error={errors.subject}>
+        <Field id="subject" label={labels.subject} required error={errors.subject}>
           <Input
             {...fieldProps('subject')}
             required
@@ -124,7 +128,7 @@ const ContactFormFields = ({
             className={cn(FIELD_HEIGHT, FIELD_SURFACE)}
           />
         </Field>
-        <Field id="message" label="Mensagem" required error={errors.message}>
+        <Field id="message" label={labels.message} required error={errors.message}>
           <Textarea
             {...fieldProps('message')}
             required

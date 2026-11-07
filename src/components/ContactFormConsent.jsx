@@ -1,12 +1,7 @@
 import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-import {
-  PRIVACY_PATH,
-  CONSENT_LABEL,
-  CONSENT_LINK_TEXT,
-  MARKETING_LABEL,
-} from '@/lib/consent';
+import { useCopy } from '@/content/CopyContext';
 
 /**
  * Shared adaptation of `ui/checkbox.jsx` for this panel. The primitive is
@@ -83,7 +78,7 @@ const ConsentRow = ({ id, checked, onCheckedChange, boxRef, error, required, chi
 /**
  * The two LGPD consent rows: mandatory data-processing consent, then the
  * optional marketing opt-in. Presentational — every value and handler is a
- * prop, and all copy comes from src/lib/consent.js.
+ * prop, and all copy comes from the active locale's module in src/content.
  *
  * `step` drives the same visibility rule as the step-2 field group, so the
  * block renders in exactly the states the Submit button does. That is what
@@ -91,59 +86,63 @@ const ConsentRow = ({ id, checked, onCheckedChange, boxRef, error, required, chi
  */
 const ContactFormConsent = ({
   step,
-  consent,
+  consent: consentChecked,
   marketingOptIn,
   error,
   onConsentChange,
   onMarketingChange,
   consentRef,
-}) => (
-  // KEEP IN SYNC WITH THE SUBMIT BUTTON below, which is `hidden sm:inline-flex`
-  // on step 1. If Submit can be pressed, this block must be on screen — an
-  // error set on a hidden block is an error nobody can read.
-  <div className={cn('space-y-3', step === 1 && 'hidden sm:block')}>
-    <ConsentRow
-      id="consent"
-      checked={consent}
-      onCheckedChange={onConsentChange}
-      boxRef={consentRef}
-      error={error}
-      required
-    >
-      {CONSENT_LABEL}{' '}
-      {/* A new tab is load-bearing, not a style choice: /privacidade is a
-          separate document and a full page load, and the form has no
-          persistence, so navigating in place throws away everything typed.
-          Same origin, so `noreferrer` would buy nothing.
-          The underline is permanent — colour alone inside a sentence is
-          invisible at rest and fails WCAG 1.4.1. No opacity modifier on
-          `primary`: it is `'hsl(var(--primary))'` with no `<alpha-value>`
-          placeholder, so Tailwind cannot apply alpha to it.
-          Plain inline <a>, so it can break across lines at 375px. */}
-      {/* `noreferrer` is redundant on a same-origin link — there is no third
-          party to withhold the referrer from, and the privacy page runs no
-          analytics that would read it. It is here anyway so the file carries no
-          standing lint exception: a disable comment is a rule every later
-          reader has to re-litigate, and this one buys nothing. */}
-      <a
-        href={PRIVACY_PATH}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rounded font-semibold text-copy-strong underline decoration-primary decoration-1 underline-offset-[3px] transition-colors duration-200 ease-out-soft hover:text-primary"
-      >
-        {CONSENT_LINK_TEXT}
-        <span className="sr-only"> (abre em nova aba)</span>
-      </a>
-    </ConsentRow>
+}) => {
+  const { consent, privacyPath, a11y } = useCopy();
 
-    <ConsentRow
-      id="marketing"
-      checked={marketingOptIn}
-      onCheckedChange={onMarketingChange}
-    >
-      {MARKETING_LABEL}
-    </ConsentRow>
-  </div>
-);
+  return (
+    // KEEP IN SYNC WITH THE SUBMIT BUTTON below, which is `hidden sm:inline-flex`
+    // on step 1. If Submit can be pressed, this block must be on screen — an
+    // error set on a hidden block is an error nobody can read.
+    <div className={cn('space-y-3', step === 1 && 'hidden sm:block')}>
+      <ConsentRow
+        id="consent"
+        checked={consentChecked}
+        onCheckedChange={onConsentChange}
+        boxRef={consentRef}
+        error={error}
+        required
+      >
+        {consent.label}{' '}
+        {/* A new tab is load-bearing, not a style choice: the privacy page is a
+            separate document and a full page load, and the form has no
+            persistence, so navigating in place throws away everything typed.
+            Same origin, so `noreferrer` would buy nothing.
+            The underline is permanent — colour alone inside a sentence is
+            invisible at rest and fails WCAG 1.4.1. No opacity modifier on
+            `primary`: it is `'hsl(var(--primary))'` with no `<alpha-value>`
+            placeholder, so Tailwind cannot apply alpha to it.
+            Plain inline <a>, so it can break across lines at 375px. */}
+        {/* `noreferrer` is redundant on a same-origin link — there is no third
+            party to withhold the referrer from, and the privacy page runs no
+            analytics that would read it. It is here anyway so the file carries no
+            standing lint exception: a disable comment is a rule every later
+            reader has to re-litigate, and this one buys nothing. */}
+        <a
+          href={privacyPath}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded font-semibold text-copy-strong underline decoration-primary decoration-1 underline-offset-[3px] transition-colors duration-200 ease-out-soft hover:text-primary"
+        >
+          {consent.linkText}
+          <span className="sr-only">{a11y.newTab}</span>
+        </a>
+      </ConsentRow>
+
+      <ConsentRow
+        id="marketing"
+        checked={marketingOptIn}
+        onCheckedChange={onMarketingChange}
+      >
+        {consent.marketingLabel}
+      </ConsentRow>
+    </div>
+  );
+};
 
 export default ContactFormConsent;

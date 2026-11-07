@@ -15,12 +15,15 @@ import { useContactForm } from '@/context/ContactFormContext';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import { getSiteLocale } from '@/lib/locale';
-import { CONSENT_VERSION, CONSENT_ERROR } from '@/lib/consent';
+import { CONSENT_VERSION } from '@/lib/consent';
+import { useCopy } from '@/content/CopyContext';
 
 const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
 
-// Brazil first and pre-selected: this is a pt-BR site for Brazilian SMBs. The
-// rest of the list stays — the client does serve clients abroad, they just pick.
+// Structure, not copy: a dial code reads the same in every language, so one
+// list serves every version of the site. Which code the <select> starts on is
+// the part that belongs to the audience, and that comes from the active
+// locale's `form.defaultDialCode`.
 const COUNTRY_CODES = [
   { code: 'BR', dial: '+55', flag: '🇧🇷' }, { code: 'GB', dial: '+44', flag: '🇬🇧' },
   { code: 'US', dial: '+1', flag: '🇺🇸' }, { code: 'AU', dial: '+61', flag: '🇦🇺' },
@@ -29,15 +32,6 @@ const COUNTRY_CODES = [
   { code: 'ES', dial: '+34', flag: '🇪🇸' }, { code: 'IT', dial: '+39', flag: '🇮🇹' },
   { code: 'JP', dial: '+81', flag: '🇯🇵' }, { code: 'CN', dial: '+86', flag: '🇨🇳' },
 ];
-
-const DEFAULT_DIAL_CODE = '+55';
-
-/**
- * Data-use reassurance under the submit button. Copy is pending from the
- * client — while it is null the whole line (icon included) stays out of the
- * DOM. Set it to a string to switch it on.
- */
-const DATA_USE_NOTE = null;
 
 // Which step's group renders each required field. Below `sm` only the current
 // step's group is in the layout, so this is what tells us which step to show
@@ -50,9 +44,12 @@ const STEP_1_REQUIRED_FIELD_IDS = REQUIRED_FIELD_IDS.filter(id => REQUIRED_FIELD
 const ContactFormModal = () => {
   const { isOpen, closeContactForm } = useContactForm();
   const { toast } = useToast();
+  // `consent` is already a state name below, so the copy slice is aliased
+  // rather than shadowed.
+  const { form, a11y, consent: consentCopy } = useCopy();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
-  const [countryCode, setCountryCode] = useState(DEFAULT_DIAL_CODE);
+  const [countryCode, setCountryCode] = useState(form.defaultDialCode);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({ name: '', company: '', email: '', phone: '', subject: '', message: '' });
   // Kept out of `formData`: it is spread as strings, the server wants booleans.
@@ -136,7 +133,7 @@ const ContactFormModal = () => {
     // block is `display:none`, and an error must never be set on a hidden block.
     if (!consent) {
       if (step !== 2) flushSync(() => setStep(2));
-      setConsentError(CONSENT_ERROR);
+      setConsentError(consentCopy.error);
       consentRef.current?.focus();
       return;
     }
@@ -169,14 +166,18 @@ const ContactFormModal = () => {
         window.fbq('track', 'Lead');
       }
 
-      toast({ title: "Mensagem enviada!", description: "Vamos responder em breve." });
+      toast({ title: form.success.title, description: form.success.description });
       setFormData({ name: '', company: '', email: '', phone: '', subject: '', message: '' });
       setConsent(false);
       setMarketingOptIn(false);
       setConsentError(null);
       setTimeout(closeContactForm, 1000);
     } catch (error) {
-      toast({ variant: "destructive", title: "Erro", description: "Algo deu errado. Tente novamente." });
+      toast({
+        variant: "destructive",
+        title: form.failure.title,
+        description: form.failure.description,
+      });
     } finally {
       setLoading(false);
     }
@@ -236,7 +237,7 @@ const ContactFormModal = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      aria-label="Fechar"
+                      aria-label={a11y.closeDialog}
                       className="absolute top-4 right-4 text-copy-muted hover:text-copy-strong"
                     >
                       <X className="w-5 h-5" aria-hidden="true" />
@@ -245,15 +246,17 @@ const ContactFormModal = () => {
 
                   <div className="space-y-2 pr-12 text-left">
                     <DialogPrimitive.Title className="text-h3 text-copy-strong">
-                      Fale com a HeloraDev
+                      {form.title}
                     </DialogPrimitive.Title>
                     <DialogPrimitive.Description className="text-small text-copy-muted">
-                      {step === 1 ? "Preencha o formulário e vamos responder em breve." : "Conte um pouco mais sobre o que você precisa."}
+                      {step === 1 ? form.descriptionStep1 : form.descriptionStep2}
                     </DialogPrimitive.Description>
                   </div>
 
-                  {/* Progress for the mobile-only 2-step flow. Non-textual on
-                      purpose: the copy for this screen is frozen. */}
+                  {/* Progress for the mobile-only 2-step flow. Two bars rather
+                      than a "step 1 of 2" line: a wordless indicator needs no
+                      translation and no room, and the dialog description above
+                      already changes with the step. */}
                   <div className="mt-5 flex gap-1.5 sm:hidden" aria-hidden="true">
                     <span className="h-1 flex-1 rounded-full bg-primary" />
                     <span
@@ -295,7 +298,7 @@ const ContactFormModal = () => {
                         onClick={() => setStep(1)}
                         className={cn("flex-1 sm:hidden", step === 1 && "hidden")}
                       >
-                        <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" /> Voltar
+                        <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" /> {form.back}
                       </Button>
 
                       {/* Next Button (Mobile Only) */}
@@ -304,7 +307,7 @@ const ContactFormModal = () => {
                         onClick={handleNext}
                         className={cn("w-full sm:hidden", step === 2 && "hidden")}
                       >
-                        Próximo <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                        {form.next} <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                       </Button>
 
                       {/* Submit Button */}
@@ -316,13 +319,22 @@ const ContactFormModal = () => {
                           step === 1 ? "hidden sm:inline-flex w-full" : "flex-[2] sm:w-full"
                         )}
                       >
-                        {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />Enviando...</> : 'Enviar'}
+                        {loading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                            {form.submitting}
+                          </>
+                        ) : (
+                          form.submit
+                        )}
                       </Button>
 
-                      {DATA_USE_NOTE && (
+                      {/* Still null in both copy modules, which keeps the
+                          whole line out of the DOM. */}
+                      {form.dataUseNote && (
                         <p className="mt-4 flex items-start gap-2 text-micro text-copy-muted">
                           <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
-                          {DATA_USE_NOTE}
+                          {form.dataUseNote}
                         </p>
                       )}
                     </div>

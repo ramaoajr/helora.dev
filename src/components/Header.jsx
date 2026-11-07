@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useContactForm } from '@/context/ContactFormContext';
+import { useCopy } from '@/content/CopyContext';
 
 const MOBILE_MENU_ID = 'mobile-menu';
 
@@ -10,6 +11,7 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const headerRef = useRef(null);
   const { openContactForm } = useContactForm();
+  const { nav, a11y } = useCopy();
 
   // The mobile panel is a header disclosure, not a modal dialog: Escape and a
   // pointer press outside the header dismiss it, but the page keeps scrolling
@@ -53,24 +55,16 @@ const Header = () => {
     scrollToSection(id);
   };
 
-  const navItems = [
-    { label: 'Problemas', id: 'problems' },
-    { label: 'Serviços', id: 'services' },
-    { label: 'Processo', id: 'how-we-work' },
-    { label: 'Para quem', id: 'who-its-for' },
-    { label: 'O que construímos', id: 'technologies' },
-  ];
-
   return (
     <header
       ref={headerRef}
       className="fixed top-0 left-0 right-0 z-40 bg-brand-blue/90 backdrop-blur-md border-b border-white/[0.08]"
     >
-      <nav aria-label="Navegação principal" className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <nav aria-label={a11y.mainNav} className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <motion.button
             type="button"
-            aria-label="Ir para o topo"
+            aria-label={a11y.toTop}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
@@ -93,7 +87,7 @@ const Header = () => {
             transition={{ duration: 0.3 }}
             className="hidden lg:flex items-center gap-6"
           >
-            {navItems.map((item) => (
+            {nav.items.map((item) => (
               <a
                 key={item.id}
                 href={`#${item.id}`}
@@ -110,7 +104,7 @@ const Header = () => {
               </a>
             ))}
             <Button onClick={openContactForm} size="sm" className="font-bold">
-              Falar com a HeloraDev
+              {nav.cta}
             </Button>
           </motion.div>
 
@@ -121,7 +115,7 @@ const Header = () => {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-expanded={mobileMenuOpen}
               aria-controls={MOBILE_MENU_ID}
-              aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
+              aria-label={mobileMenuOpen ? a11y.closeMenu : a11y.openMenu}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </Button>
@@ -140,7 +134,7 @@ const Header = () => {
             className="absolute top-full left-0 w-full bg-brand-blue border-t border-white/[0.08] lg:hidden"
           >
             <div className="flex flex-col gap-1 p-4">
-              {navItems.map((item) => (
+              {nav.items.map((item) => (
                 <a
                   key={item.id}
                   href={`#${item.id}`}
@@ -151,7 +145,7 @@ const Header = () => {
                 </a>
               ))}
               <Button onClick={openContactForm} className="w-full font-bold mt-2">
-                Falar com a HeloraDev
+                {nav.cta}
               </Button>
             </div>
           </motion.div>

@@ -2,35 +2,16 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import SectionIntro from '@/components/SectionIntro';
 import { useInView } from '@/hooks/useInView';
+import { useCopy } from '@/content/CopyContext';
 
 const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
 const STAGGER_STEP = 0.06;
 const STAGGER_CAP = 5;
 
-const LEAD =
-  'O processo reduz risco, evita soluções genéricas e mantém a tecnologia conectada ao que a operação precisa entregar.';
-
 const HowWeWork = () => {
   const [ref, isInView] = useInView({ once: true });
-
-  const steps = [
-    {
-      title: 'Diagnóstico',
-      description: 'Entendemos a operação, os gargalos, as ferramentas atuais e o impacto de cada problema.',
-    },
-    {
-      title: 'Planejamento',
-      description: 'Definimos o fluxo ideal, prioridades, riscos e o caminho técnico mais simples para implementar.',
-    },
-    {
-      title: 'Implementação',
-      description: 'Construímos automações, sistemas e integrações com ciclos curtos e validação operacional.',
-    },
-    {
-      title: 'Acompanhamento',
-      description: 'Ajustamos o que foi implantado, medimos resultado e evoluímos a operação com dados reais.',
-    },
-  ];
+  const { howWeWork } = useCopy();
+  const { steps } = howWeWork;
 
   return (
     <section
@@ -49,9 +30,9 @@ const HowWeWork = () => {
           <SectionIntro
             id="how-we-work-title"
             align="center"
-            eyebrow="Como trabalhamos"
-            title="Primeiro entendemos. Depois construímos."
-            lead={LEAD}
+            eyebrow={howWeWork.eyebrow}
+            title={howWeWork.title}
+            lead={howWeWork.lead}
           />
         </motion.div>
 

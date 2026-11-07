@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import SectionIntro from '@/components/SectionIntro';
 import { useInView } from '@/hooks/useInView';
+import { useCopy } from '@/content/CopyContext';
 
 const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
 
@@ -21,59 +22,23 @@ const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
 const STAGGER_STEP = 0.04;
 const STAGGER_CAP = 5;
 
-const LEAD =
-  'Quando processos dependem de planilhas, mensagens e memória, a empresa perde tempo, controle e previsibilidade todos os dias.';
+// Keyed, not positional: the copy modules name each item, so a reordered or
+// retitled list in one language cannot shift every icon in the other.
+const ICONS = {
+  spreadsheets: FileSpreadsheet,
+  scattered: MessageSquareWarning,
+  rework: Repeat,
+  visibility: Search,
+  nonstandard: Route,
+  lateReports: Clock,
+  untraceable: AlertTriangle,
+  unclearStatus: HelpCircle,
+  growth: ClipboardList,
+};
 
 const Problems = () => {
   const [ref, isInView] = useInView({ once: true });
-
-  const problems = [
-    {
-      icon: FileSpreadsheet,
-      title: 'Planilhas controlando tudo',
-      description: 'Dados críticos ficam em arquivos soltos, sem dono claro e sem histórico confiável.',
-    },
-    {
-      icon: MessageSquareWarning,
-      title: 'Informação espalhada',
-      description: 'WhatsApp, e-mail, sistemas e conversas guardam pedaços diferentes da operação.',
-    },
-    {
-      icon: Repeat,
-      title: 'Retrabalho recorrente',
-      description: 'A equipe refaz conferências, atualizações e cópias manuais que poderiam ser automáticas.',
-    },
-    {
-      icon: Search,
-      title: 'Pouca visibilidade',
-      description: 'Prazos, responsáveis e gargalos só aparecem quando o problema já virou urgência.',
-    },
-    {
-      icon: Route,
-      title: 'Processos sem padrão',
-      description: 'Cada pessoa executa de um jeito, o que torna treinamento, escala e qualidade instáveis.',
-    },
-    {
-      icon: Clock,
-      title: 'Relatórios atrasados',
-      description: 'Indicadores chegam tarde porque dependem de coleta, limpeza e consolidação manual.',
-    },
-    {
-      icon: AlertTriangle,
-      title: 'Erros difíceis de rastrear',
-      description: 'Falhas em cadastro, pedido ou atendimento passam por várias mãos antes de serem percebidas.',
-    },
-    {
-      icon: HelpCircle,
-      title: 'Status pouco claro',
-      description: 'Clientes e gestores perguntam onde algo está porque não existe uma fonte única de verdade.',
-    },
-    {
-      icon: ClipboardList,
-      title: 'Crescimento sem controle',
-      description: 'A demanda aumenta, mas os processos continuam dependentes de esforço manual e memória.',
-    },
-  ];
+  const { problems } = useCopy();
 
   return (
     <section
@@ -92,34 +57,38 @@ const Problems = () => {
           <SectionIntro
             id="problems-title"
             align="split"
-            eyebrow="Problemas que resolvemos"
-            title="Operações travam antes de parecerem grandes problemas."
-            lead={LEAD}
+            eyebrow={problems.eyebrow}
+            title={problems.title}
+            lead={problems.lead}
           />
         </motion.div>
 
         {/* A hairline checklist, not cards: the visitor should tick through the
             nine items in a few seconds and move on. */}
         <ul className="grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-          {problems.map((problem, index) => (
-            <motion.li
-              key={problem.title}
-              initial={{ opacity: 0, y: 12 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{
-                duration: 0.42,
-                delay: Math.min(index, STAGGER_CAP) * STAGGER_STEP,
-                ease: EASE_OUT_SOFT,
-              }}
-              className="border-t border-white/[0.07] pt-5"
-            >
-              <div className="flex items-center gap-3">
-                <problem.icon className="h-5 w-5 text-primary shrink-0" aria-hidden="true" />
-                <h3 className="text-h4 text-copy-strong">{problem.title}</h3>
-              </div>
-              <p className="mt-2 text-small text-copy">{problem.description}</p>
-            </motion.li>
-          ))}
+          {problems.items.map((problem, index) => {
+            const Icon = ICONS[problem.key];
+
+            return (
+              <motion.li
+                key={problem.key}
+                initial={{ opacity: 0, y: 12 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{
+                  duration: 0.42,
+                  delay: Math.min(index, STAGGER_CAP) * STAGGER_STEP,
+                  ease: EASE_OUT_SOFT,
+                }}
+                className="border-t border-white/[0.07] pt-5"
+              >
+                <div className="flex items-center gap-3">
+                  <Icon className="h-5 w-5 text-primary shrink-0" aria-hidden="true" />
+                  <h3 className="text-h4 text-copy-strong">{problem.title}</h3>
+                </div>
+                <p className="mt-2 text-small text-copy">{problem.description}</p>
+              </motion.li>
+            );
+          })}
         </ul>
       </div>
     </section>
