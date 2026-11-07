@@ -140,17 +140,10 @@ const PrivacyPage = () => (
             </p>
           </Section>
 
-          <Section title="Por onde esses registros passam">
+          <Section title="Para onde vão">
             <p>
-              O formulário envia tudo para um endereço do próprio helora.dev. De lá, o conteúdo
-              segue para o Make, a ferramenta que automatiza o fluxo, e termina registrado no
-              Notion, onde a conversa é acompanhada.
-            </p>
-            <p>
-              <Pending>em que países o Make e o Notion armazenam esses registros</Pending>
-            </p>
-            <p>
-              <Pending>outros serviços que recebem os dados além do Make e do Notion, se existirem</Pending>
+              O que você escreve no formulário vai direto para o nosso CRM, onde o contato fica
+              registrado e a conversa é acompanhada.
             </p>
           </Section>
 
@@ -167,17 +160,22 @@ const PrivacyPage = () => (
 
           <Section title="Por quanto tempo ficam guardados">
             <p>
-              <Pending>prazo de guarda das mensagens de contato e dos registros de consentimento</Pending>
+              Os registros ficam 365 dias, contados do último contato ou da última movimentação.
+              Passado esse prazo sem nada acontecer, são apagados.
+            </p>
+            <p>
+              Quem se torna cliente sai dessa contagem, porque a relação comercial tem obrigações
+              de guarda próprias.
             </p>
           </Section>
 
           <Section title="Proteção">
             <p>
-              As credenciais da automação ficam só no servidor e nunca chegam ao navegador de quem
-              visita o site. O retorno do formulário não revela nada sobre o fluxo interno.
+              As chaves da automação ficam só no servidor e nunca chegam ao navegador de quem
+              visita o site. O retorno do formulário não revela nada sobre o que acontece depois.
             </p>
             <p>
-              <Pending>demais medidas de proteção aplicadas aos registros</Pending>
+              Os registros ficam atrás de credenciais criptografadas, e não existe acesso de fora.
             </p>
           </Section>
 
@@ -194,12 +192,7 @@ const PrivacyPage = () => (
             <p>
               Mande o pedido para <MailLink />.
             </p>
-            <p>
-              <Pending>prazo para responder a um pedido de acesso, correção ou exclusão</Pending>
-            </p>
-            <p>
-              <Pending>link ou endereço de descadastro dos e-mails de novidades</Pending>
-            </p>
+            <p>Todo pedido é respondido em até 14 dias úteis.</p>
           </Section>
 
           <Section title="Versões deste texto">
