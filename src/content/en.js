@@ -435,6 +435,8 @@ const en = {
           ] },
           { p: 'Send the request to {mail}.' },
           { p: 'Every request is answered within 14 working days.' },
+          // See the note in pt.js.
+          { optout: true },
         ],
       },
       {
@@ -444,6 +446,23 @@ const en = {
         ],
       },
     ],
+  },
+
+  // See the note in pt.js.
+  optout: {
+    trigger: 'Come off the email list',
+    title: 'Come off the email list',
+    description:
+      'Type the address you want removed. This does not delete the rest of your record — for that, write to dev4me@helora.dev.',
+    emailLabel: 'Your email',
+    submit: 'Remove me',
+    submitting: 'Sending...',
+    successTitle: 'Request received',
+    successBody:
+      "If that address is on the list, it comes off now and you'll get a confirmation by email. If it is not, there is nothing to do, and no email is sent.",
+    errorBody:
+      'We could not send your request just now. Try again, or write to dev4me@helora.dev.',
+    close: 'Close',
   },
 
 };

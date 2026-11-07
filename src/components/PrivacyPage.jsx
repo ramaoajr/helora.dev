@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowLeft, Languages, Mail } from 'lucide-react';
 import { CONSENT_VERSION } from '@/lib/consent';
 import { useCopy } from '@/content/CopyContext';
+import { Button } from '@/components/ui/button';
+import OptOutDialog from '@/components/OptOutDialog';
 import { cn } from '@/lib/utils';
 
 // One column, narrow by design: this is a page to be read, not scanned.
@@ -48,7 +50,16 @@ const withMail = (text) =>
     .split('{mail}')
     .flatMap((part, index) => (index === 0 ? [part] : [<MailLink key={index} />, part]));
 
-const Block = ({ block }) => {
+const Block = ({ block, optout, onOptout }) => {
+  // The one block that does something rather than says something.
+  if (block.optout) {
+    return (
+      <Button variant="outline" onClick={onOptout} className="w-full sm:w-auto">
+        {optout.trigger}
+      </Button>
+    );
+  }
+
   if (block.ul) {
     return (
       <ul className="list-disc space-y-2 pl-5 marker:text-primary">
@@ -116,7 +127,8 @@ const PrivacyFooter = ({ copyright }) => (
 );
 
 const PrivacyPage = () => {
-  const { privacy, footer, homePath, alternate, a11y } = useCopy();
+  const { privacy, footer, homePath, alternate, a11y, optout } = useCopy();
+  const [optOutOpen, setOptOutOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-brand-blue text-body text-copy">
@@ -139,7 +151,12 @@ const PrivacyPage = () => {
                 {section.blocks.map((block, index) => (
                   // Index as key: the blocks of a section are a fixed, ordered
                   // list that is never reordered, filtered or appended to.
-                  <Block key={index} block={block} />
+                  <Block
+                    key={index}
+                    block={block}
+                    optout={optout}
+                    onOptout={() => setOptOutOpen(true)}
+                  />
                 ))}
               </section>
             ))}
@@ -156,6 +173,8 @@ const PrivacyPage = () => {
       </main>
 
       <PrivacyFooter copyright={footer.copyright} />
+
+      <OptOutDialog open={optOutOpen} onOpenChange={setOptOutOpen} />
     </div>
   );
 };

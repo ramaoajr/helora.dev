@@ -445,6 +445,9 @@ const pt = {
           ] },
           { p: 'Mande o pedido para {mail}.' },
           { p: 'Todo pedido é respondido em até 14 dias úteis.' },
+          // Only the mailing list has a button: it is the one right that can be
+          // honoured on the spot, without a person reading the request first.
+          { optout: true },
         ],
       },
       {
@@ -454,6 +457,31 @@ const pt = {
         ],
       },
     ],
+  },
+
+  /**
+   * The marketing unsubscribe dialog on the privacy page.
+   *
+   * `success` is written to be true whether or not the address was on the
+   * list, and to say so. The endpoint answers the same either way on purpose —
+   * telling someone "you were not subscribed" would turn this into a way to
+   * ask the site who is on its list — and this wording keeps that promise on
+   * screen instead of quietly implying an answer.
+   */
+  optout: {
+    trigger: 'Sair da lista de e-mails',
+    title: 'Sair da lista de e-mails',
+    description:
+      'Digite o endereço que você quer tirar da lista. Isso não apaga o resto do seu registro — para isso, escreva para dev4me@helora.dev.',
+    emailLabel: 'Seu e-mail',
+    submit: 'Tirar da lista',
+    submitting: 'Enviando...',
+    successTitle: 'Pedido recebido',
+    successBody:
+      'Se esse endereço estiver na lista, ele sai agora e você recebe uma confirmação por e-mail. Se não estiver, não há nada a fazer, e nenhum e-mail é enviado.',
+    errorBody:
+      'Não foi possível enviar seu pedido agora. Tente de novo, ou escreva para dev4me@helora.dev.',
+    close: 'Fechar',
   },
 
 };
