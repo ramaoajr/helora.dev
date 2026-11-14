@@ -4,6 +4,8 @@ import { Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import HoneypotField from '@/components/HoneypotField';
+import { HONEYPOT_FIELD } from '@/lib/honeypot';
 import { useCopy } from '@/content/CopyContext';
 import { cn } from '@/lib/utils';
 
@@ -30,6 +32,7 @@ const OptOutDialog = ({ open, onOpenChange }) => {
   const { optout, locale } = useCopy();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
+  const [honeypot, setHoneypot] = useState('');
   const inputRef = useRef(null);
 
   // A reopened dialog must never show the previous attempt's outcome, or the
@@ -38,6 +41,7 @@ const OptOutDialog = ({ open, onOpenChange }) => {
     if (!open) {
       setEmail('');
       setStatus('idle');
+      setHoneypot('');
     }
   }, [open]);
 
@@ -57,7 +61,7 @@ const OptOutDialog = ({ open, onOpenChange }) => {
       const response = await fetch('/api/optout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, locale }),
+        body: JSON.stringify({ email, locale, [HONEYPOT_FIELD]: honeypot }),
       });
       if (!response.ok) throw new Error('request failed');
       setStatus('success');
@@ -112,6 +116,11 @@ const OptOutDialog = ({ open, onOpenChange }) => {
                 </DialogPrimitive.Description>
 
                 <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
+                  <HoneypotField
+                    value={honeypot}
+                    onChange={(event) => setHoneypot(event.target.value)}
+                  />
+
                   <div className="space-y-2">
                     <Label htmlFor="optout-email" className="text-small text-copy">
                       {optout.emailLabel}

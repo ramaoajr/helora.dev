@@ -11,11 +11,13 @@ import { X, Loader2, ArrowRight, ArrowLeft, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ContactFormFields from '@/components/ContactFormFields';
 import ContactFormConsent from '@/components/ContactFormConsent';
+import HoneypotField from '@/components/HoneypotField';
 import { useContactForm } from '@/context/ContactFormContext';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import { getSiteLocale } from '@/lib/locale';
 import { CONSENT_VERSION } from '@/lib/consent';
+import { HONEYPOT_FIELD } from '@/lib/honeypot';
 import { useCopy } from '@/content/CopyContext';
 
 const EASE_OUT_SOFT = [0.16, 1, 0.3, 1];
@@ -56,6 +58,9 @@ const ContactFormModal = () => {
   const [consent, setConsent] = useState(false);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [consentError, setConsentError] = useState(null);
+  // Never merged into `formData`: that object is spread into the payload as the
+  // lead's own fields, and this is not one of them.
+  const [honeypot, setHoneypot] = useState('');
   const nameInputRef = useRef(null);
   const consentRef = useRef(null);
   const openerRef = useRef(null);
@@ -68,6 +73,7 @@ const ContactFormModal = () => {
       setConsent(false);
       setMarketingOptIn(false);
       setConsentError(null);
+      setHoneypot('');
     }
   }, [isOpen]);
 
@@ -150,6 +156,7 @@ const ContactFormModal = () => {
       marketing_opt_in: marketingOptIn,
       // No `consent_at`: the server stamps it, overwriting anything sent here.
       consent_version: CONSENT_VERSION,
+      [HONEYPOT_FIELD]: honeypot,
     };
     try {
       const response = await fetch('/api/contact', {
@@ -163,6 +170,7 @@ const ContactFormModal = () => {
 
       toast({ title: form.success.title, description: form.success.description });
       setFormData({ name: '', company: '', email: '', phone: '', subject: '', message: '' });
+      setHoneypot('');
       setConsent(false);
       setMarketingOptIn(false);
       setConsentError(null);
@@ -272,6 +280,11 @@ const ContactFormModal = () => {
                       onChange={handleChange}
                       onCountryChange={handleCountryChange}
                       nameInputRef={nameInputRef}
+                    />
+
+                    <HoneypotField
+                      value={honeypot}
+                      onChange={(event) => setHoneypot(event.target.value)}
                     />
 
                     <ContactFormConsent

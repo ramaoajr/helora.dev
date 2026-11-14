@@ -41,6 +41,27 @@ function normaliseLocale(raw) {
   return raw.trim().toLowerCase().split(/[-_]/)[0] === 'pt' ? 'pt' : 'en';
 }
 
+/**
+ * The honeypot field's name, duplicated from `src/lib/honeypot.js` because
+ * everything under `functions/` is a route and cannot import from the Vite
+ * tree. CHANGE IT IN ALL THREE PLACES AT ONCE: if the form stops sending the
+ * field this looks for, the trap fails OPEN and nothing says so.
+ */
+const HONEYPOT_FIELD = 'helora_hp';
+
+/**
+ * A filled honeypot means a machine, because the field is off-screen, out of
+ * the tab order and out of autofill.
+ *
+ * The caller is told `{ ok: true }` and nothing is forwarded. Answering 400
+ * would tell a bot which field gave it away, and it would come back without
+ * that field; a 200 ends the conversation and costs the automation nothing.
+ */
+function isTrapped(body) {
+  const value = body[HONEYPOT_FIELD];
+  return typeof value === 'string' && value.trim() !== '';
+}
+
 const json = (status, body) =>
   new Response(JSON.stringify(body), {
     status,
@@ -139,6 +160,11 @@ export async function onRequest({ request, env }) {
 
   const body = await readJsonBody(request);
   if (!body) return json(400, { ok: false, error: 'invalid_json' });
+
+  if (isTrapped(body)) {
+    console.error('[optout] honeypot filled, dropping silently');
+    return json(200, { ok: true });
+  }
 
   const { errors, payload } = validateRequest(body);
   if (errors) return json(400, { ok: false, error: 'validation_error', fields: errors });
